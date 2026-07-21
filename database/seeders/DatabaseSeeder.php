@@ -15,11 +15,28 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // ১. আগে roles ও permissions তৈরি করুন
+        $this->call(RolePermissionSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // ২. Admin user তৈরি করুন
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@lms.test'],
+            ['name' => 'Super Admin', 'password' => bcrypt('password')]
+        );
+        $admin->assignRole('admin');
+
+        // ৩. Instructor user তৈরি করুন
+        $instructor = User::firstOrCreate(
+            ['email' => 'instructor@lms.test'],
+            ['name' => 'Demo Instructor', 'password' => bcrypt('password')]
+        );
+        $instructor->assignRole('instructor');
+
+        // ৪. Student user তৈরি করুন
+        $student = User::firstOrCreate(
+            ['email' => 'student@lms.test'],
+            ['name' => 'Demo Student', 'password' => bcrypt('password')]
+        );
+        $student->assignRole('student');
     }
 }
