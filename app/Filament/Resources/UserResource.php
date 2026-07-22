@@ -63,9 +63,9 @@ class UserResource extends Resource
                         ->label('Password')
                         ->password()
                         ->revealable()
-                        ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                        ->dehydrated(fn ($state) => filled($state))
-                        ->required(fn (string $operation): bool => $operation === 'create')
+                        ->dehydrateStateUsing(fn($state) => Hash::make($state))
+                        ->dehydrated(fn($state) => filled($state))
+                        ->required(fn(string $operation): bool => $operation === 'create')
                         ->minLength(8)
                         ->helperText('Edit করার সময় blank রাখলে password পরিবর্তন হবে না।'),
                 ]),
@@ -104,18 +104,18 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Roles')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'admin'      => 'danger',
+                    ->color(fn(string $state): string => match ($state) {
+                        'admin' => 'danger',
                         'instructor' => 'warning',
-                        'student'    => 'success',
-                        default      => 'gray',
+                        'student' => 'success',
+                        default => 'gray',
                     })
                     ->separator(','),
 
                 Tables\Columns\IconColumn::make('email_verified_at')
                     ->label('Verified')
                     ->boolean()
-                    ->getStateUsing(fn (User $record): bool => $record->email_verified_at !== null)
+                    ->getStateUsing(fn(User $record): bool => $record->email_verified_at !== null)
                     ->trueIcon('heroicon-o-check-badge')
                     ->falseIcon('heroicon-o-x-circle'),
 
@@ -158,9 +158,9 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListUsers::route('/'),
+            'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
-            'edit'   => Pages\EditUser::route('/{record}/edit'),
+            'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
 }

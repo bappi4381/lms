@@ -14,6 +14,17 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                ostad: {
+                    yellow: '#FFCD33',
+                    'yellow-hover': '#FFC000',
+                    'yellow-active': '#FFAB00',
+                    black: '#101828',
+                    'black-overlay': '#1d2939',
+                    'black-light': '#344054',
+                    'black-muted': '#475467',
+                }
+            }
         },
     },
 

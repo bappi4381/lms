@@ -38,7 +38,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property-read Collection<int, Membership> $teamMemberships
  * @property-read Collection<int, Team> $teams
  */
-#[Fillable(['name', 'email', 'password', 'current_team_id'])]
+#[Fillable(['name', 'email', 'phone', 'password', 'current_team_id', 'designation', 'company', 'about', 'profile_photo_url'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser, FilamentUser
 {
@@ -59,6 +59,7 @@ class User extends Authenticatable implements PasskeyUser, FilamentUser
     {
         return [
             'email_verified_at' => 'datetime',
+            'phone_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];
@@ -70,7 +71,7 @@ class User extends Authenticatable implements PasskeyUser, FilamentUser
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->hasRole(['admin', 'instructor']);
+        return $this->hasRole(['admin', 'instructor', 'support']);
     }
 
     /**
@@ -83,5 +84,82 @@ class User extends Authenticatable implements PasskeyUser, FilamentUser
         return Str::length($initials) > 1
             ? Str::substr($initials, 0, 1).Str::substr($initials, -1)
             : $initials;
+    }
+
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function socialAccounts()
+    {
+        return $this->hasMany(SocialAccount::class);
+    }
+
+    public function devices()
+    {
+        return $this->hasMany(Device::class);
+    }
+
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function supportTickets()
+    {
+        return $this->hasMany(SupportTicket::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get the user's currently active (paid & not expired) subscription, if any.
+     * An active subscription grants access to ALL courses.
+     */
+    public function activeSubscription(): ?Subscription
+    {
+        return $this->subscriptions()
+            ->where('status', 'active')
+            ->where('ends_at', '>=', now())
+            ->latest('ends_at')
+            ->first();
+    }
+
+    public function hasActiveSubscription(): bool
+    {
+        return $this->activeSubscription() !== null;
+    }
+
+    /**
+     * A user has real access to a course if they hold a paid, non-expired
+     * enrollment OR an active all-courses subscription.
+     */
+    public function isEnrolledIn($courseId): bool
+    {
+        if ($this->hasActiveSubscription()) {
+            return true;
+        }
+
+        return $this->enrollments()
+            ->where('course_id', $courseId)
+            ->where('payment_status', 'paid')
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>=', now());
+            })
+            ->exists();
     }
 }

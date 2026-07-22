@@ -38,5 +38,12 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Demo Student', 'password' => bcrypt('password')]
         );
         $student->assignRole('student');
+
+        // ৫. Support user তৈরি করুন
+        $support = User::firstOrCreate(
+            ['email' => 'support@lms.test'],
+            ['name' => 'Demo Support', 'password' => bcrypt('password')]
+        );
+        $support->assignRole('support');
     }
 }

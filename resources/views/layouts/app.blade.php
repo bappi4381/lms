@@ -32,5 +32,9 @@
                 {{ $slot }}
             </main>
         </div>
+
+        @guest
+            <x-auth-drawer />
+        @endguest
     </body>
 </html>

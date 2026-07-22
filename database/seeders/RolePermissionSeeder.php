@@ -55,6 +55,44 @@ class RolePermissionSeeder extends Seeder
             // Reports
             'report.viewAny',
             'report.view',
+
+            // Quiz & Assignment management
+            'quiz.viewAny',
+            'quiz.view',
+            'quiz.create',
+            'quiz.update',
+            'quiz.delete',
+            'assignment.viewAny',
+            'assignment.view',
+            'assignment.create',
+            'assignment.update',
+            'assignment.delete',
+            'assignment.grade',
+
+            // Coupons & Subscription plans
+            'coupon.viewAny',
+            'coupon.create',
+            'coupon.update',
+            'coupon.delete',
+            'subscriptionPlan.viewAny',
+            'subscriptionPlan.create',
+            'subscriptionPlan.update',
+            'subscriptionPlan.delete',
+
+            // Devices
+            'device.viewAny',
+            'device.delete',
+
+            // Certificates & Reviews
+            'certificate.viewAny',
+            'review.viewAny',
+            'review.moderate',
+
+            // Support tickets
+            'ticket.viewAny',
+            'ticket.view',
+            'ticket.reply',
+            'ticket.update',
         ];
 
         foreach ($permissions as $permission) {
@@ -65,9 +103,24 @@ class RolePermissionSeeder extends Seeder
         $admin      = Role::firstOrCreate(['name' => 'admin']);
         $instructor = Role::firstOrCreate(['name' => 'instructor']);
         $student    = Role::firstOrCreate(['name' => 'student']);
+        $support    = Role::firstOrCreate(['name' => 'support']);
 
         // Admin → সব permission পাবে
         $admin->syncPermissions(Permission::all());
+
+        // Support → ticket ও enrollment/report দেখতে পারবে, রিফান্ড/পেমেন্ট ইস্যু হ্যান্ডেল করার জন্য
+        $support->syncPermissions([
+            'ticket.viewAny',
+            'ticket.view',
+            'ticket.reply',
+            'ticket.update',
+            'enrollment.viewAny',
+            'enrollment.view',
+            'report.viewAny',
+            'report.view',
+            'review.viewAny',
+            'review.moderate',
+        ]);
 
         // Instructor → নিজের course/module/lesson manage করতে পারবে
         $instructor->syncPermissions([
@@ -90,6 +143,21 @@ class RolePermissionSeeder extends Seeder
 
             'enrollment.viewAny',
             'enrollment.view',
+
+            'quiz.viewAny',
+            'quiz.view',
+            'quiz.create',
+            'quiz.update',
+            'quiz.delete',
+            'assignment.viewAny',
+            'assignment.view',
+            'assignment.create',
+            'assignment.update',
+            'assignment.delete',
+            'assignment.grade',
+
+            'certificate.viewAny',
+            'review.viewAny',
         ]);
 
         // Student → শুধু course দেখা ও enroll করতে পারবে
