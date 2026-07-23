@@ -1,3 +1,14 @@
+@php
+    // Static for now — items currently available in the navbar/dropdowns.
+    // TODO: make this dynamic (e.g. admin-configurable with dropdowns) later.
+    $mainNavItems = [
+        ['label' => 'হোম', 'route' => 'courses.index'],
+        ['label' => 'কোর্স', 'route' => 'courses.list'],
+        ['label' => 'সাবস্ক্রিপশন প্ল্যান', 'route' => 'subscriptions.index'],
+        ['label' => 'সাপোর্ট', 'route' => 'support.index'],
+    ];
+@endphp
+
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -8,6 +19,24 @@
                     <a href="{{ route('courses.index') }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
                     </a>
+                </div>
+
+                <!-- Primary Nav Links -->
+                <div class="hidden sm:flex sm:items-center sm:ms-8 gap-1">
+                    @foreach($mainNavItems as $item)
+                        <a href="{{ route($item['route']) }}"
+                            class="px-3 py-2 text-sm font-semibold rounded-md transition-colors
+                                {{ request()->routeIs($item['route']) ? 'text-brand-navy bg-brand-blue-light' : 'text-gray-600 hover:text-brand-navy hover:bg-gray-50' }}">
+                            {{ $item['label'] }}
+                        </a>
+                    @endforeach
+                    @auth
+                        <a href="{{ route('dashboard') }}"
+                            class="px-3 py-2 text-sm font-semibold rounded-md transition-colors
+                                {{ request()->routeIs('dashboard') ? 'text-brand-navy bg-brand-blue-light' : 'text-gray-600 hover:text-brand-navy hover:bg-gray-50' }}">
+                            ড্যাশবোর্ড
+                        </a>
+                    @endauth
                 </div>
             </div>
 
@@ -115,9 +144,16 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+            @foreach($mainNavItems as $item)
+                <x-responsive-nav-link :href="route($item['route'])" :active="request()->routeIs($item['route'])">
+                    {{ $item['label'] }}
+                </x-responsive-nav-link>
+            @endforeach
+            @auth
+                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    {{ __('ড্যাশবোর্ড') }}
+                </x-responsive-nav-link>
+            @endauth
         </div>
 
         <!-- Responsive Settings Options -->

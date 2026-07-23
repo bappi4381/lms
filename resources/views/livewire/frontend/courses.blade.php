@@ -9,6 +9,7 @@ new class extends Component
     public $categories = [];
     public $courses = [];
     public $selectedCategory = null;
+    public $search = '';
 
     public function mount(): void
     {
@@ -17,12 +18,20 @@ new class extends Component
             ->orderBy('order')
             ->get();
 
+        $this->selectedCategory = request()->integer('category') ?: null;
+        $this->search = trim((string) request()->query('q', ''));
+
         $this->loadCourses();
     }
 
     public function filterByCategory(?int $categoryId): void
     {
         $this->selectedCategory = $categoryId;
+        $this->loadCourses();
+    }
+
+    public function updatedSearch(): void
+    {
         $this->loadCourses();
     }
 
@@ -36,6 +45,10 @@ new class extends Component
                 $categoryIds = array_merge([$category->id], $category->children->pluck('id')->toArray());
                 $query->whereIn('category_id', $categoryIds);
             }
+        }
+
+        if ($this->search !== '') {
+            $query->where('title', 'like', '%'.$this->search.'%');
         }
 
         $this->courses = $query->with('category')->latest()->get();
@@ -62,6 +75,12 @@ new class extends Component
     <!-- Categories / Courses -->
     <div class="py-10 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <!-- Search -->
+            <div class="mb-6 bg-white rounded-full border border-gray-200 shadow-elevation-1 flex items-center gap-2 p-1.5 max-w-xl">
+                <svg class="w-5 h-5 text-brand-blue ml-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"></path></svg>
+                <input type="text" wire:model.live.debounce.400ms="search" placeholder="কোর্স খুঁজুন..." class="flex-1 border-0 focus:ring-0 text-sm text-ostad-black placeholder-gray-400 bg-transparent min-w-0">
+            </div>
 
             <!-- Dynamic Category Filter Chips (Material Design 3) -->
             <div class="flex overflow-x-auto pb-6 mb-4 gap-2.5 hide-scrollbar">

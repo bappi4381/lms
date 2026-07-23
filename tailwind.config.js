@@ -15,14 +15,24 @@ export default {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
             colors: {
+                // SecondShiftBD brand palette. Kept under the historical `ostad`
+                // key so every existing bg-ostad-*/text-ostad-* usage across the
+                // frontend (buttons, auth drawer, nav) re-themes automatically.
                 ostad: {
-                    yellow: '#FFCD33',
-                    'yellow-hover': '#FFC000',
-                    'yellow-active': '#FFAB00',
-                    black: '#101828',
-                    'black-overlay': '#1d2939',
-                    'black-light': '#344054',
-                    'black-muted': '#475467',
+                    yellow: '#3498DB',
+                    'yellow-hover': '#2E86C1',
+                    'yellow-active': '#217DBB',
+                    black: '#0F3460',
+                    'black-overlay': '#16406E',
+                    'black-light': '#1B4F72',
+                    'black-muted': '#3F6E99',
+                },
+                brand: {
+                    navy: '#0F3460',
+                    'navy-light': '#16406E',
+                    blue: '#3498DB',
+                    'blue-light': '#EAF4FC',
+                    gold: '#F5A623',
                 }
             },
             // Material Design 3 elevation tokens (dp0 - dp5)
