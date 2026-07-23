@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Volt::route('/', 'frontend.course-index')->name('courses.index');
+Volt::route('/courses', 'frontend.courses')->name('courses.list');
 Volt::route('/courses/{slug}', 'frontend.course-show')->name('courses.show');
 Volt::route('/courses/{slug}/lessons/{lesson_id}', 'frontend.lesson-player')
     ->middleware('device.limit')

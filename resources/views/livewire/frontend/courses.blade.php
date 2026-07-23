@@ -46,78 +46,22 @@ new class extends Component
 
 
 <div>
-    <!-- Hero Section -->
-    <section class="w-full bg-white pt-2 pb-6 md:pt-6">
+    <!-- Page Header -->
+    <section class="w-full bg-white pt-10 pb-6 md:pt-14">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- M3 Elevated Surface (elevation 1) -->
-            <div class="bg-white rounded-md-xl shadow-elevation-1 p-6 sm:p-8 md:p-12">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-                    <!-- Left: Copy -->
-                    <div class="text-center lg:text-left">
-                        <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-ostad-black leading-tight">
-                            বাংলাদেশ শিখবে <span class="text-red-600">লাইভে</span>
-                            <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 align-middle ml-1"></span>
-                        </h1>
-                        <p class="mt-4 text-base md:text-lg text-gray-500 max-w-lg mx-auto lg:mx-0">
-                            স্কিল শেখার মাধ্যমে বদলে ফেলুন নিজের ভবিষ্যৎ। সেরা ইন্সট্রাক্টরদের সাথে লাইভ ইন্টারঅ্যাক্টিভ ক্লাসে অংশ নিন।
-                        </p>
-                        <div class="mt-6 flex justify-center lg:justify-start">
-                            <!-- M3 Filled Button (elevation 1 -> 2 on hover) -->
-                            <a href="#courses" class="md-ripple inline-flex items-center gap-2 px-7 h-12 bg-ostad-yellow hover:bg-ostad-yellow-hover text-ostad-black text-sm font-bold rounded-md-full shadow-elevation-1 hover:shadow-elevation-2 transition-shadow duration-200 ease-md-standard">
-                                শেখা শুরু করুন
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Right: AI Driven Card (M3 Elevated Card, elevation 2) -->
-                    <div class="relative rounded-md-lg overflow-hidden bg-gradient-to-br from-ostad-black via-[#1d2939] to-[#101828] min-h-[280px] sm:min-h-[340px] flex items-end p-6 sm:p-8 shadow-elevation-2">
-                        <span class="absolute top-5 left-5 inline-flex items-center gap-1.5 bg-ostad-yellow text-ostad-black text-xs font-bold px-3 py-1 rounded-md-full z-10">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                            AI Driven
-                        </span>
-                        <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="AI driven learning" class="absolute inset-0 w-full h-full object-cover opacity-40">
-                        <div class="absolute inset-0 bg-gradient-to-t from-ostad-black via-ostad-black/40 to-transparent"></div>
-                        <div class="relative z-10">
-                            <p class="text-white text-xl sm:text-2xl md:text-3xl font-extrabold leading-snug">
-                                স্কিল শিখে ক্যারিয়ার হবে
-                                <span class="block text-ostad-yellow">ফিউচার রেডি</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pre-recorded Courses Promo Banner (M3 Tonal Surface, flat / elevation 0) -->
-            <div class="mt-6 bg-[#5c1a1a] rounded-md-xl px-5 sm:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-4 text-center sm:text-left">
-                    <div class="hidden sm:flex w-11 h-11 rounded-full bg-white/10 items-center justify-center shrink-0">
-                        <svg class="w-6 h-6 text-ostad-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <div>
-                        <p class="text-white font-bold">যারা শুরু করলো প্রি-রেকর্ডেড কোর্সে!</p>
-                        <p class="text-sm text-rose-100/80">পছন্দের প্রি-রেকর্ডেড কোর্স এনরোল করে এগিয়ে যান ক্যারিয়ারে</p>
-                    </div>
-                </div>
-                <!-- M3 Filled Button on tonal surface -->
-                <a href="{{ route('courses.list') }}" class="md-ripple shrink-0 inline-flex items-center gap-2 bg-ostad-yellow hover:bg-ostad-yellow-hover text-ostad-black font-bold px-5 h-11 rounded-md-full text-sm shadow-elevation-1 hover:shadow-elevation-2 transition-shadow duration-200 ease-md-standard">
-                    বিস্তারিত দেখি
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Categories / Upcoming Live Courses -->
-    <div id="courses" class="py-16 bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-            <div class="flex items-center gap-3 mb-10">
+            <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-ostad-yellow rounded-full flex items-center justify-center shadow-elevation-1">
                     <svg class="w-6 h-6 text-ostad-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                 </div>
-                <h2 class="text-2xl md:text-3xl font-extrabold text-ostad-black tracking-tight">আপকামিং লাইভ কোর্স</h2>
+                <h1 class="text-2xl md:text-3xl font-extrabold text-ostad-black tracking-tight">সকল কোর্স</h1>
             </div>
+            <p class="mt-3 text-gray-500 max-w-2xl">পছন্দের কোর্স খুঁজে নিন এবং সেরা ইন্সট্রাক্টরদের সাথে স্কিল ডেভেলপ করুন।</p>
+        </div>
+    </section>
+
+    <!-- Categories / Courses -->
+    <div class="py-10 bg-gray-50 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <!-- Dynamic Category Filter Chips (Material Design 3) -->
             <div class="flex overflow-x-auto pb-6 mb-4 gap-2.5 hide-scrollbar">

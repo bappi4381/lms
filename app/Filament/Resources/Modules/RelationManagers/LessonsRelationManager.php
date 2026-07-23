@@ -46,6 +46,8 @@ class LessonsRelationManager extends RelationManager
 
                 TextInput::make('video_id')
                     ->label('Bunny Video ID')
+                    ->placeholder('e.g. 3a4f8b91-xxxx-xxxx-xxxx-xxxxxxxxxxxx')
+                    ->helperText('Bunny.net ড্যাশবোর্ড থেকে ভিডিওর নির্দিষ্ট Video ID (GUID) দিন। (Library ID দিবেন না)')
                     ->visible(fn ($get) => $get('type') === 'video'),
 
                 TextInput::make('pdf_url')
