@@ -2,6 +2,883 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Neumorphism design tokens (legacy class names: glass-*, neu-*) ─── */
+@layer base {
+    :root {
+        /* Light neumorphic palette (reference: #E0E5EC canvas + #3498DB accent) */
+        --palette-dark: #d1d9e6;
+        --palette-light: #ffffff;
+        --brand-navy: #0f3460;
+        --brand-blue: #3498db;
+        --neu-base: #e0e5ec;
+        --neu-shadow-dark: #bebebe;
+        --neu-shadow-light: #ffffff;
+        --neu-shadow-dark-rgb: 190, 190, 190;
+        --neu-text: #2d3436;
+        --neu-text-muted: #636e72;
+        --neu-gradient: linear-gradient(135deg, #2980b9 0%, #3498db 52%, #5dade2 100%);
+        --neu-gradient-hover: linear-gradient(135deg, #3498db 0%, #5dade2 50%, #85c1e9 100%);
+        --neu-raised:
+            10px 10px 20px var(--neu-shadow-dark),
+            -10px -10px 20px var(--neu-shadow-light);
+        --neu-raised-sm:
+            6px 6px 14px var(--neu-shadow-dark),
+            -6px -6px 14px var(--neu-shadow-light);
+        --neu-raised-lg:
+            14px 14px 28px var(--neu-shadow-dark),
+            -14px -14px 28px var(--neu-shadow-light);
+        --neu-inset:
+            inset 8px 8px 16px var(--neu-shadow-dark),
+            inset -8px -8px 16px var(--neu-shadow-light);
+        --neu-inset-sm:
+            inset 4px 4px 8px var(--neu-shadow-dark),
+            inset -4px -4px 8px var(--neu-shadow-light);
+        --neu-nav-shadow: 0 6px 18px var(--neu-shadow-dark);
+        --surface-bg: var(--neu-base);
+        --surface-border: transparent;
+        --surface-blur: none;
+        --accent-glow: 0 4px 16px rgba(52, 152, 219, 0.28);
+    }
+
+    /* ── Dark mode: dark neumorphism + neon pink accent (reference: #2c2e33 canvas) ── */
+    .dark {
+        --palette-dark: #1e1f23;
+        --palette-light: #3a3d43;
+        --brand-navy: #c8ccd4;
+        --brand-blue: #ff3b5c;
+        --neu-base: #2c2e33;
+        --neu-shadow-dark: #1e1f23;
+        --neu-shadow-light: #3a3d43;
+        --neu-shadow-dark-rgb: 30, 31, 35;
+        --neu-text: #c8ccd4;
+        --neu-text-muted: #555861;
+        --neu-gradient: linear-gradient(135deg, #e62e4f 0%, #ff2d55 48%, #ff3b5c 100%);
+        --neu-gradient-hover: linear-gradient(135deg, #ff2d55 0%, #ff3b5c 50%, #ff5577 100%);
+        --neu-raised:
+            10px 10px 20px var(--neu-shadow-dark),
+            -10px -10px 20px var(--neu-shadow-light);
+        --neu-raised-sm:
+            6px 6px 14px var(--neu-shadow-dark),
+            -6px -6px 14px var(--neu-shadow-light);
+        --neu-raised-lg:
+            14px 14px 28px var(--neu-shadow-dark),
+            -12px -12px 24px var(--neu-shadow-light);
+        --neu-inset:
+            inset 5px 5px 10px var(--neu-shadow-dark),
+            inset -5px -5px 10px var(--neu-shadow-light);
+        --neu-inset-sm:
+            inset 3px 3px 6px var(--neu-shadow-dark),
+            inset -3px -3px 6px var(--neu-shadow-light);
+        --neu-nav-shadow: 0 6px 18px var(--neu-shadow-dark);
+        --surface-bg: var(--neu-base);
+        --surface-border: transparent;
+        --surface-blur: none;
+        --accent-glow: 0 0 8px rgba(255, 59, 92, 0.65), 0 0 16px rgba(255, 59, 92, 0.35);
+    }
+}
+
+@layer components {
+    /* ── Page canvas ── */
+    .glass-page {
+        @apply relative min-h-screen antialiased;
+        background-color: var(--neu-base);
+        color: var(--neu-text);
+    }
+
+    .dark .glass-page {
+        background-color: var(--neu-base);
+        background-image: none;
+    }
+
+    .glass-page-bg {
+        @apply pointer-events-none fixed inset-0 -z-10;
+        background-color: var(--neu-base);
+    }
+
+    /* Shared neumorphic surfaces — solid matte, dual shadows, no blur */
+    .glass-stat,
+    .glass-nav,
+    .glass-footer,
+    .glass-drawer,
+    .glass-dropdown,
+    .glass-modal,
+    .glass-hero,
+    .glass-hero-inner,
+    .glass-tag,
+    .glass-newsletter,
+    .glass-sidebar,
+    .glass-mobile-menu,
+    .glass-search-overlay,
+    .glass-empty,
+    .glass-cart-item,
+    .glass-tab-switcher,
+    .glass-tab-active,
+    .glass-cta,
+    .glass-icon-btn,
+    .glass-pill,
+    .glass-btn-ghost,
+    .glass-btn-white,
+    .glass-social-btn,
+    .glass-icon-box,
+    .glass-thumb,
+    .glass-footer-icon,
+    .glass-input,
+    .neu-card,
+    .neu-panel,
+    .neu-inset,
+    .neu-inset-sm,
+    .neu-raised-sm,
+    .neu-raised-lg,
+    .neu-btn,
+    .neu-pill,
+    .neu-input {
+        border: none;
+    }
+
+    /* ── Raised surfaces (cards, panels) ── */
+    .glass-surface,
+    .glass-panel,
+    .glass-card {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised);
+        border: none;
+        @apply rounded-[1.75rem];
+    }
+
+    .glass-card-hover {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised);
+        border: none;
+        @apply rounded-[1.75rem] transition-all duration-200 ease-md-standard;
+    }
+
+    .glass-card-hover:hover {
+        box-shadow: var(--neu-raised-lg);
+        transform: translateY(-2px);
+    }
+
+    .glass-stat {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-lg);
+        border: none;
+        @apply rounded-[1.75rem];
+    }
+
+    /* ── Navigation bar (raised strip, opaque canvas) ── */
+    .glass-nav {
+        background: var(--neu-base);
+        box-shadow: var(--neu-nav-shadow);
+        border: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        isolation: isolate;
+        @apply sticky top-0 z-50;
+    }
+
+    .glass-section {
+        @apply py-6 sm:py-8;
+    }
+
+    .glass-page-header {
+        @apply glass-panel p-6 sm:p-8;
+    }
+
+    .glass-content-area {
+        @apply glass-panel p-5 sm:p-8;
+    }
+
+    /* ── Footer ── */
+    .glass-footer {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-lg);
+        border: none;
+        @apply text-neu-text;
+    }
+
+    /* ── Drawer ── */
+    .glass-drawer {
+        background: var(--surface-bg);
+        box-shadow: -10px 0 28px var(--neu-shadow-dark);
+        border: none;
+    }
+
+    /* ── Dropdown ── */
+    .glass-dropdown {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-lg);
+        border: none;
+        @apply rounded-2xl;
+    }
+
+    .glass-dropdown-link {
+        @apply block w-full px-4 py-2.5 text-start text-sm font-medium
+            focus:outline-none transition-colors duration-150 ease-in-out rounded-xl mx-1;
+        color: var(--brand-navy);
+    }
+
+    .glass-dropdown-link:hover {
+        background: var(--neu-base);
+        box-shadow: var(--neu-inset-sm);
+    }
+
+    /* ── Modal ── */
+    .glass-modal {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-lg);
+        border: none;
+        @apply rounded-[1.75rem] overflow-hidden;
+    }
+
+    .glass-backdrop {
+        background: rgba(var(--neu-shadow-dark-rgb), 0.35);
+    }
+
+    .glass-backdrop-dark {
+        background: rgba(var(--neu-shadow-dark-rgb), 0.55);
+    }
+
+    .dark .glass-backdrop {
+        background: rgba(30, 31, 35, 0.82);
+    }
+
+    .dark .glass-backdrop-dark {
+        background: rgba(20, 21, 24, 0.72);
+    }
+
+    .dark .glass-drawer {
+        box-shadow: -10px 0 28px var(--neu-shadow-dark), inset 1px 0 0 var(--neu-shadow-light);
+    }
+
+    .glass-divider {
+        border-color: transparent;
+        box-shadow: inset 0 1px 0 var(--neu-shadow-dark);
+    }
+
+    html:not(.dark) .glass-divider {
+        box-shadow: inset 0 1px 0 rgba(190, 190, 190, 0.55);
+    }
+
+    .dark .glass-divider {
+        box-shadow: inset 0 1px 0 rgba(58, 61, 67, 0.45);
+    }
+
+    .glass-nav .text-gray-700,
+    .glass-nav .text-gray-800,
+    .glass-nav .text-gray-600 {
+        color: var(--neu-text-muted);
+    }
+
+    .glass-mobile-menu .text-gray-800 {
+        color: var(--neu-text);
+    }
+
+    /* ── Inputs (recessed) ── */
+    .glass-input {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-inset-sm);
+        border: none;
+        @apply rounded-2xl
+            focus:ring-2 focus:outline-none transition-all;
+        color: var(--neu-text);
+        --tw-ring-color: rgba(52, 152, 219, 0.35);
+    }
+
+    .glass-input:focus {
+        box-shadow: var(--neu-inset), var(--accent-glow);
+    }
+
+    .dark .glass-input {
+        color: var(--neu-text);
+        --tw-ring-color: rgba(255, 59, 92, 0.45);
+    }
+
+    .dark .glass-hero-inner input {
+        color: var(--neu-text);
+    }
+
+    .dark .glass-btn {
+        --tw-ring-color: rgba(255, 59, 92, 0.45);
+    }
+
+    .glass-input-pill {
+        @apply glass-input rounded-full;
+    }
+
+    /* ── Primary button (gradient accent) ── */
+    .glass-btn {
+        background: var(--neu-gradient);
+        box-shadow: var(--neu-raised-sm), var(--accent-glow);
+        border: none;
+        @apply inline-flex items-center justify-center text-white font-bold
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+            transition-all duration-150;
+        --tw-ring-color: rgba(52, 152, 219, 0.4);
+        --tw-ring-offset-color: var(--neu-base);
+    }
+
+    html:not(.dark) .glass-btn {
+        --accent-glow: 0 4px 16px rgba(52, 152, 219, 0.32);
+    }
+
+    .glass-btn:hover {
+        background: var(--neu-gradient-hover);
+    }
+
+    .glass-btn:active {
+        box-shadow: var(--neu-inset-sm);
+        transform: translateY(1px);
+    }
+
+    .glass-btn-danger {
+        background: linear-gradient(135deg, #f87171 0%, #ef4444 50%, #dc2626 100%);
+        box-shadow: var(--neu-raised-sm);
+        border: none;
+        @apply inline-flex items-center justify-center text-white font-semibold
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50 focus-visible:ring-offset-2
+            transition-all duration-150;
+    }
+
+    .glass-btn-danger:hover {
+        background: linear-gradient(135deg, #fca5a5 0%, #f87171 50%, #ef4444 100%);
+    }
+
+    .glass-btn-danger:active {
+        box-shadow: var(--neu-inset-sm);
+    }
+
+    /* ── Secondary / recessed button ── */
+    .glass-btn-ghost {
+        background: var(--neu-base);
+        box-shadow: var(--neu-inset-sm);
+        border: none;
+        @apply inline-flex items-center justify-center font-semibold
+            focus-visible:outline-none focus-visible:ring-2
+            transition-all duration-150;
+        color: var(--brand-navy);
+        --tw-ring-color: rgba(52, 152, 219, 0.35);
+    }
+
+    .glass-btn-ghost:hover {
+        box-shadow: var(--neu-inset);
+    }
+
+    .glass-btn-ghost:active {
+        box-shadow: var(--neu-inset);
+        transform: translateY(1px);
+    }
+
+    .glass-btn-soft {
+        background: var(--neu-base);
+        box-shadow: var(--neu-raised-sm);
+        border: none;
+        @apply inline-flex items-center justify-center font-bold
+            focus-visible:outline-none focus-visible:ring-2
+            transition-all duration-150;
+        color: var(--brand-navy);
+        --tw-ring-color: rgba(52, 152, 219, 0.3);
+    }
+
+    .glass-btn-soft:hover {
+        box-shadow: var(--neu-raised);
+    }
+
+    .glass-btn-soft:active {
+        box-shadow: var(--neu-inset-sm);
+    }
+
+    .glass-btn-white {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-sm);
+        border: none;
+        @apply inline-flex items-center justify-center font-bold
+            focus-visible:outline-none focus-visible:ring-2
+            transition-all duration-150;
+        color: var(--brand-navy);
+        --tw-ring-color: rgba(52, 152, 219, 0.35);
+    }
+
+    .glass-btn-white:hover {
+        box-shadow: var(--neu-raised);
+    }
+
+    .glass-btn-white:active {
+        box-shadow: var(--neu-inset-sm);
+    }
+
+    /* ── Icon buttons ── */
+    .glass-icon-btn {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-sm);
+        border: none;
+        @apply inline-flex items-center justify-center
+            focus-visible:outline-none focus-visible:ring-2
+            transition-all duration-150;
+        color: var(--brand-navy);
+        --tw-ring-color: rgba(52, 152, 219, 0.35);
+    }
+
+    .glass-icon-btn:hover {
+        box-shadow: var(--neu-raised);
+    }
+
+    .glass-icon-btn:active {
+        box-shadow: var(--neu-inset-sm);
+    }
+
+    /* ── Pills / filters ── */
+    .glass-pill {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-sm);
+        border: none;
+        @apply inline-flex items-center font-bold transition-all duration-200;
+        color: var(--brand-navy);
+    }
+
+    .glass-pill-active {
+        background: var(--neu-gradient);
+        box-shadow: var(--accent-glow);
+        border: none;
+        color: #ffffff !important;
+    }
+
+    html:not(.dark) .glass-pill-active {
+        background: #3498db;
+        box-shadow: var(--neu-raised-sm), var(--accent-glow);
+    }
+
+    .dark .glass-pill-active {
+        background: #ff3b5c;
+        box-shadow: var(--neu-raised-sm), var(--accent-glow);
+        color: #ffffff !important;
+        text-shadow: 0 0 8px rgba(255, 59, 92, 0.55);
+    }
+
+    .glass-pill-active:active {
+        box-shadow: var(--neu-inset-sm);
+    }
+
+    /* ── Hero (raised feature card) ── */
+    .glass-hero {
+        @apply relative overflow-hidden mx-4 sm:mx-6 lg:mx-8 mt-4 sm:mt-6 rounded-[2rem];
+        color: var(--brand-navy);
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-lg);
+        border: none;
+    }
+
+    .glass-hero-inner {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-inset);
+        border: none;
+        @apply rounded-full;
+    }
+
+    .glass-tag {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-sm);
+        border: none;
+        @apply font-semibold transition-all duration-150;
+        color: var(--brand-navy);
+    }
+
+    .glass-tag:hover {
+        box-shadow: var(--neu-raised);
+    }
+
+    .glass-tag:active {
+        box-shadow: var(--neu-inset-sm);
+    }
+
+    .glass-divider-light {
+        @apply glass-divider;
+    }
+
+    .glass-newsletter {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised);
+        border: none;
+        @apply rounded-[1.75rem];
+    }
+
+    .glass-sidebar {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised);
+        border: none;
+        @apply rounded-[1.75rem];
+    }
+
+    .glass-mobile-menu {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-inset-sm);
+        border: none;
+    }
+
+    .glass-search-overlay {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-lg);
+        border: none;
+        @apply rounded-2xl;
+    }
+
+    .glass-empty {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-inset);
+        border: none;
+        @apply rounded-[1.75rem];
+    }
+
+    .glass-cart-item {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-sm);
+        border: none;
+        @apply rounded-2xl;
+    }
+
+    .glass-tab-switcher {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-inset-sm);
+        border: none;
+        @apply flex p-1 rounded-2xl;
+    }
+
+    .glass-tab-active {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-sm);
+        border: none;
+        color: var(--brand-navy);
+    }
+
+    /* ── CTA block ── */
+    .glass-cta {
+        @apply relative rounded-[2rem] overflow-hidden;
+        color: var(--brand-navy);
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-lg);
+        border: none;
+    }
+
+    .glass-nav-hover {
+        @apply transition-all duration-150 rounded-xl;
+    }
+
+    .glass-nav-hover:hover {
+        background: var(--neu-base);
+        box-shadow: var(--neu-inset-sm);
+        color: var(--brand-navy);
+    }
+
+    .glass-social-btn {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-sm);
+        border: none;
+        @apply flex items-center justify-center gap-2 py-2.5 rounded-2xl text-sm font-semibold transition-all;
+        color: var(--neu-text-muted);
+    }
+
+    .glass-social-btn:hover {
+        box-shadow: var(--neu-raised);
+    }
+
+    .glass-social-btn:active {
+        box-shadow: var(--neu-inset-sm);
+    }
+
+    .glass-icon-box {
+        background: var(--neu-base);
+        box-shadow: var(--neu-inset-sm);
+        border: none;
+        @apply rounded-2xl;
+        color: var(--brand-blue);
+    }
+
+    .glass-thumb {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-inset-sm);
+        border: none;
+    }
+
+    .glass-footer-icon {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-sm);
+        border: none;
+        @apply flex items-center justify-center transition-all duration-200;
+        color: var(--brand-navy);
+    }
+
+    .glass-footer-icon:hover {
+        background: var(--neu-gradient);
+        box-shadow: var(--neu-raised-sm), var(--accent-glow);
+        @apply text-white;
+    }
+
+    .glass-footer-icon:active {
+        box-shadow: var(--neu-inset-sm);
+    }
+
+    .glass-icon-accent {
+        background: var(--neu-gradient);
+        box-shadow: var(--neu-raised-sm), var(--accent-glow);
+        border: none;
+        @apply text-white;
+    }
+
+    /* ── Brand logo mark — raised outer ring + inset inner + gradient letter ── */
+    .neu-logo-mark {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-sm);
+        border: none;
+        @apply relative flex items-center justify-center w-10 h-10 rounded-2xl shrink-0;
+    }
+
+    .neu-logo-mark__inner {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-inset-sm);
+        border: none;
+        @apply flex items-center justify-center w-[calc(100%-8px)] h-[calc(100%-8px)] rounded-xl;
+    }
+
+    .neu-logo-mark__letter {
+        background: var(--neu-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        @apply font-black text-lg leading-none;
+    }
+
+    a:hover .neu-logo-mark,
+    .neu-logo-mark--interactive:hover {
+        box-shadow: var(--neu-raised-sm), var(--accent-glow);
+    }
+
+    a:active .neu-logo-mark,
+    .neu-logo-mark--interactive:active {
+        box-shadow: var(--neu-inset-sm);
+    }
+
+    a:active .neu-logo-mark__inner,
+    .neu-logo-mark--interactive:active .neu-logo-mark__inner {
+        box-shadow: var(--neu-inset);
+    }
+
+    /* ── Neu aliases (dashboard, course-show, auth pages) ── */
+    .neu-card {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised);
+        border: none;
+        @apply rounded-md-lg overflow-hidden;
+    }
+
+    .neu-panel {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised);
+        border: none;
+        @apply rounded-md-lg p-6;
+    }
+
+    .neu-inset {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-inset);
+        border: none;
+        @apply rounded-md-md;
+    }
+
+    .neu-inset-sm {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-inset-sm);
+        border: none;
+        @apply rounded-md-sm;
+    }
+
+    .neu-raised-sm {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-sm);
+        border: none;
+        @apply rounded-md-sm;
+    }
+
+    .neu-raised-lg {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-lg);
+        border: none;
+        @apply rounded-md-lg;
+    }
+
+    .neu-btn {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-sm);
+        border: none;
+        @apply inline-flex items-center justify-center font-bold
+            transition-all duration-150 rounded-md-md;
+        color: var(--brand-navy);
+    }
+
+    .neu-btn:hover {
+        box-shadow: var(--neu-raised);
+    }
+
+    .neu-btn:active {
+        box-shadow: var(--neu-inset-sm);
+    }
+
+    .neu-btn-primary {
+        background: var(--neu-gradient);
+        box-shadow: var(--neu-raised-sm), var(--accent-glow);
+        border: none;
+        @apply inline-flex items-center justify-center text-white font-bold
+            transition-all duration-150 rounded-md-md;
+    }
+
+    .neu-btn-primary:hover {
+        background: var(--neu-gradient-hover);
+    }
+
+    .neu-btn-primary:active {
+        box-shadow: var(--neu-inset-sm);
+    }
+
+    .neu-input {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-inset-sm);
+        border: none;
+        @apply w-full px-3 py-2
+            focus:ring-2 focus:outline-none transition-all rounded-md-md;
+        color: var(--neu-text);
+        --tw-ring-color: rgba(52, 152, 219, 0.35);
+    }
+
+    .neu-pill {
+        background: var(--surface-bg);
+        box-shadow: var(--neu-raised-sm);
+        border: none;
+        @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-bold;
+    }
+
+    /* Neumorphic enforcement — solid surfaces only, no glass/blur */
+    :is(
+        .glass-stat,
+        .glass-nav,
+        .glass-footer,
+        .glass-drawer,
+        .glass-dropdown,
+        .glass-modal,
+        .glass-hero,
+        .glass-hero-inner,
+        .glass-cta,
+        .glass-card,
+        .glass-card-hover,
+        .glass-panel,
+        .glass-surface,
+        .glass-search-overlay,
+        .glass-sidebar,
+        .glass-mobile-menu,
+        .glass-tab-switcher,
+        .glass-cart-item,
+        .glass-icon-btn,
+        .glass-pill,
+        .glass-tag,
+        .glass-input,
+        .glass-social-btn,
+        .neu-card,
+        .neu-panel
+    ) {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    html:not(.dark) .glass-icon-box {
+        filter: drop-shadow(0 2px 6px rgba(52, 152, 219, 0.22));
+    }
+
+    html:not(.dark) .glass-icon-accent,
+    html:not(.dark) .glass-footer-icon:hover {
+        filter: drop-shadow(0 2px 8px rgba(52, 152, 219, 0.35));
+    }
+
+    html:not(.dark) .bg-brand-blue {
+        box-shadow: 0 0 10px rgba(52, 152, 219, 0.35);
+    }
+
+    .dark .bg-brand-blue {
+        box-shadow: 0 0 8px rgba(255, 59, 92, 0.55), 0 0 16px rgba(255, 59, 92, 0.3);
+    }
+
+    .dark .glass-icon-box {
+        color: var(--brand-blue);
+        filter: drop-shadow(0 0 5px rgba(255, 59, 92, 0.55));
+    }
+
+    .dark .glass-icon-accent {
+        filter: drop-shadow(0 0 6px rgba(255, 59, 92, 0.65));
+    }
+
+    .dark .glass-footer-icon:hover {
+        filter: drop-shadow(0 0 6px rgba(255, 59, 92, 0.6));
+    }
+
+    .glass-input::placeholder,
+    .neu-input::placeholder {
+        color: var(--neu-text-muted);
+    }
+
+    .neu-input:focus {
+        box-shadow: var(--neu-inset), var(--accent-glow);
+    }
+
+    .dark .neu-input {
+        color: var(--neu-text);
+        --tw-ring-color: rgba(255, 59, 92, 0.45);
+    }
+}
+
+@layer utilities {
+    .dark .text-brand-navy {
+        color: var(--brand-navy) !important;
+    }
+
+    .dark .text-brand-blue {
+        color: var(--brand-blue) !important;
+        text-shadow: 0 0 8px rgba(255, 59, 92, 0.45);
+    }
+
+    .dark .text-neu-heading,
+    .dark .text-neu-text {
+        color: var(--neu-text) !important;
+    }
+
+    .dark .text-neu-muted {
+        color: var(--neu-text-muted) !important;
+    }
+
+    .dark .bg-neu-base {
+        background-color: var(--neu-base) !important;
+    }
+
+    .dark .bg-brand-blue-light {
+        background-color: var(--neu-base) !important;
+        box-shadow: var(--neu-inset-sm);
+    }
+
+    html:not(.dark) .bg-brand-blue-light {
+        background-color: var(--neu-base) !important;
+        box-shadow: var(--neu-inset-sm);
+    }
+
+    .dark .hover\:text-brand-navy:hover {
+        color: var(--brand-navy) !important;
+    }
+
+    .dark .hover\:text-brand-blue:hover {
+        color: var(--brand-blue) !important;
+        text-shadow: 0 0 8px rgba(255, 59, 92, 0.45);
+    }
+
+    .dark .from-brand-navy.to-brand-blue,
+    .dark .from-brand-navy-light.to-brand-blue {
+        background-image: linear-gradient(to top right, #e62e4f, #ff3b5c) !important;
+        box-shadow: var(--accent-glow);
+    }
+}
+
 /* Material Design ripple + state-layer interaction */
 .md-ripple {
     position: relative;
@@ -37,4 +914,19 @@
         transform: scale(3.2);
         opacity: 0;
     }
+}
+
+/* Horizontal scroll containers */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Thumbnail placeholder (inset groove) */
+.course-thumb-pattern {
+    background-color: var(--neu-base);
+    box-shadow: var(--neu-inset-sm);
 }

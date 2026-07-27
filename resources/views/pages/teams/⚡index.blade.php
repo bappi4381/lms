@@ -84,16 +84,16 @@ new #[Title('Teams')] class extends Component {
 
         <div class="mt-6 space-y-3">
             @forelse ($this->teams as $team)
-                <div class="flex items-center justify-between gap-4 rounded-lg border border-zinc-200 bg-white p-4" data-test="team-row">
+                <div class="flex items-center justify-between gap-4 neu-card p-4" data-test="team-row">
                     <div class="flex items-center gap-4">
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="font-medium">{{ $team->name }}</span>
+                                <span class="font-medium text-neu-heading">{{ $team->name }}</span>
                                 @if ($team->isPersonal)
                                     <flux:badge color="zinc">{{ __('Personal') }}</flux:badge>
                                 @endif
                             </div>
-                            <flux:text class="text-sm text-zinc-500">{{ $team->roleLabel }}</flux:text>
+                            <flux:text class="text-sm text-neu-muted">{{ $team->roleLabel }}</flux:text>
                         </div>
                     </div>
 
@@ -149,7 +149,7 @@ new #[Title('Teams')] class extends Component {
                     </flux:modal>
                 @endif
             @empty
-                <flux:text class="py-8 text-center text-zinc-500">
+                <flux:text class="py-8 text-center text-neu-muted">
                     {{ __('You don\'t belong to any teams yet.') }}
                 </flux:text>
             @endforelse

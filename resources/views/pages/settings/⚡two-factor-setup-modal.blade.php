@@ -159,15 +159,15 @@ new class extends Component {
 >
         <div class="space-y-6">
             <div class="flex flex-col items-center space-y-4">
-                <div class="p-0.5 w-auto rounded-full border border-stone-100 bg-white shadow-sm">
-                    <div class="p-2.5 rounded-full border border-stone-200 overflow-hidden bg-stone-100 relative">
-                        <div class="flex items-stretch absolute inset-0 w-full h-full divide-x [&>div]:flex-1 divide-stone-200 justify-around opacity-50">
+                <div class="p-0.5 w-auto rounded-full neu-inset-sm">
+                    <div class="p-2.5 rounded-full neu-inset overflow-hidden relative">
+                        <div class="flex items-stretch absolute inset-0 w-full h-full divide-x [&>div]:flex-1 divide-neu-dark/10 justify-around opacity-50">
                             @for ($i = 1; $i <= 5; $i++)
                                 <div></div>
                             @endfor
                         </div>
 
-                        <div class="flex flex-col items-stretch absolute w-full h-full divide-y [&>div]:flex-1 inset-0 divide-stone-200 justify-around opacity-50">
+                        <div class="flex flex-col items-stretch absolute w-full h-full divide-y [&>div]:flex-1 inset-0 divide-neu-dark/10 justify-around opacity-50">
                             @for ($i = 1; $i <= 5; $i++)
                                 <div></div>
                             @endfor
@@ -225,15 +225,15 @@ new class extends Component {
                 @enderror
 
                 <div class="flex justify-center">
-                    <div class="relative w-64 overflow-hidden border rounded-lg border-stone-200 aspect-square">
+                    <div class="relative w-64 overflow-hidden neu-inset-sm rounded-md-md aspect-square">
                         @empty($qrCodeSvg)
-                            <div class="absolute inset-0 flex items-center justify-center bg-white animate-pulse">
+                            <div class="absolute inset-0 flex items-center justify-center bg-neu-base animate-pulse">
                                 <flux:icon.loading/>
                             </div>
                         @else
                             <div x-data class="flex items-center justify-center h-full p-4">
                                 <div
-                                    class="bg-white p-3 rounded"
+                                    class="bg-neu-base p-3 rounded-md-sm"
                                     :style="($flux.appearance === 'dark' || ($flux.appearance === 'system' && $flux.dark)) ? 'filter: invert(1) brightness(1.5)' : ''"
                                 >
                                     {!! $qrCodeSvg !!}
@@ -256,8 +256,8 @@ new class extends Component {
 
                 <div class="space-y-4">
                     <div class="relative flex items-center justify-center w-full">
-                        <div class="absolute inset-0 w-full h-px top-1/2 bg-stone-200"></div>
-                        <span class="relative px-2 text-sm bg-white text-stone-600">
+                        <div class="absolute inset-0 w-full h-px top-1/2 bg-neu-dark/10"></div>
+                        <span class="relative px-2 text-sm bg-neu-base text-neu-muted">
                             {{ __('or, enter the code manually') }}
                         </span>
                     </div>
@@ -277,9 +277,9 @@ new class extends Component {
                             }
                         }"
                     >
-                        <div class="flex items-stretch w-full border rounded-xl">
+                        <div class="flex items-stretch w-full neu-inset-sm rounded-md-md overflow-hidden">
                             @empty($manualSetupKey)
-                                <div class="flex items-center justify-center w-full p-3 bg-stone-100">
+                                <div class="flex items-center justify-center w-full p-3 bg-neu-base">
                                     <flux:icon.loading variant="mini"/>
                                 </div>
                             @else
@@ -287,18 +287,18 @@ new class extends Component {
                                     type="text"
                                     readonly
                                     value="{{ $manualSetupKey }}"
-                                    class="w-full p-3 bg-transparent outline-none text-stone-900"
+                                    class="w-full p-3 bg-transparent outline-none text-neu-heading"
                                 />
 
                                 <button
                                     @click="copy()"
-                                    class="px-3 transition-colors border-l cursor-pointer border-stone-200"
+                                    class="px-3 transition-colors border-l cursor-pointer border-neu-dark/10 text-neu-muted hover:text-neu-heading"
                                 >
                                     <flux:icon.document-duplicate x-show="!copied" variant="outline"></flux:icon>
                                     <flux:icon.check
                                         x-show="copied"
                                         variant="solid"
-                                        class="text-green-500"
+                                        class="text-neu-heading"
                                     ></flux:icon>
                                 </button>
                             @endempty

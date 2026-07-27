@@ -1,0 +1,28 @@
+---
+description: Production UI/UX standards for all frontend work (Blade, Livewire, Tailwind)
+globs: resources/views/**,resources/css/**,resources/js/**,tailwind.config.js
+alwaysApply: true
+---
+
+# Frontend UI/UX — Mandatory Standards
+
+**Full guide:** `docs/FRONTEND-UI-UX-STANDARDS.md` — read and follow it on every frontend change.
+
+## Stack
+Blade + Livewire Volt + Flux + Tailwind + Alpine. No new CSS frameworks or jQuery.
+
+## Non-negotiables
+1. **Mobile-first responsive** — base styles first, then `sm:`/`md:`/`lg:`. Test 320px–1440px. Min tap target 44px.
+2. **Design tokens** — use `brand-*`, `shadow-elevation-*`, `rounded-md-*` from `tailwind.config.js`. No hardcoded hex in templates.
+3. **Reuse components** — `x-primary-button`, `x-text-input`, `x-modal`, etc. before inline duplicates.
+4. **All UI states** — loading (`wire:loading`), empty, error, success. Never ship happy-path only.
+5. **Accessibility** — semantic HTML, `focus-visible:ring-*`, form labels, `aria-label` on icon buttons, WCAG AA contrast.
+6. **Reactivity** — debounce search inputs; `wire:key` in loops; disable buttons while loading.
+7. **Bengali-first UX** — natural copy, `bn()` for marketing numerals, layouts that fit longer strings.
+8. **Performance** — lazy images, aspect ratios, paginate long lists, no inline `<style>`/`<script>`.
+
+## Backend
+**Do not change backend code.** See `.cursor/rules/no-backend-changes.mdc` — markup/styling only; preserve existing routes, logic, and behavior.
+
+## Before completing any frontend task
+Run through the checklist in `docs/FRONTEND-UI-UX-STANDARDS.md` §13.

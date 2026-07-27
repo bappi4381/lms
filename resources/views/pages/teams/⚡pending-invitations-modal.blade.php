@@ -92,10 +92,10 @@ new class extends Component {
 
                 <div class="grid gap-4">
                     @foreach ($this->pendingInvitations as $invitation)
-                        <div data-test="pending-invitation-row" class="rounded-lg border border-zinc-200 p-4">
+                        <div data-test="pending-invitation-row" class="neu-card p-4">
                             <div class="space-y-1">
-                                <p class="font-medium">{{ $invitation['team_name'] }}</p>
-                                <flux:text class="text-sm text-zinc-500">
+                                <p class="font-medium text-neu-heading">{{ $invitation['team_name'] }}</p>
+                                <flux:text class="text-sm text-neu-muted">
                                     {{ __(':inviter invited you to join this team.', ['inviter' => $invitation['inviter_name']]) }}
                                 </flux:text>
                             </div>
