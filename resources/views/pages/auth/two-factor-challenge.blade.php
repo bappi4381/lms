@@ -1,5 +1,5 @@
 <x-layouts::auth :title="__('Two-factor authentication')">
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-6 neu-panel">
         <div
             class="relative w-full h-auto"
             x-cloak
@@ -73,7 +73,7 @@
                         </div>
 
                         @error('recovery_code')
-                            <flux:text color="red">
+                            <flux:text class="text-neu-heading">
                                 {{ $message }}
                             </flux:text>
                         @enderror
@@ -88,9 +88,9 @@
                     </flux:button>
                 </div>
 
-                <div class="mt-5 space-x-0.5 text-sm leading-5 text-center">
-                    <span class="opacity-50">{{ __('or you can') }}</span>
-                    <div class="inline font-medium underline cursor-pointer opacity-80">
+                <div class="mt-5 space-x-0.5 text-sm leading-5 text-center text-neu-muted">
+                    <span class="opacity-70">{{ __('or you can') }}</span>
+                    <div class="inline font-medium underline cursor-pointer text-neu-text hover:text-neu-heading">
                         <span x-show="!showRecoveryInput" @click="toggleInput()">{{ __('login using a recovery code') }}</span>
                         <span x-show="showRecoveryInput" @click="toggleInput()">{{ __('login using an authentication code') }}</span>
                     </div>

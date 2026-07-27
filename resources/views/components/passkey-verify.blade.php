@@ -58,15 +58,15 @@
                     <span x-show="loading" x-cloak>{{ $loadingLabel }}</span>
                 </flux:button>
                 <p x-show="error" x-text="error" x-cloak
-                   class="text-sm text-center text-red-600"></p>
+                   class="text-sm text-center text-neu-heading"></p>
             </div>
 
             <div class="relative my-6">
                 <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-zinc-200"></div>
+                    <div class="h-px w-full bg-neu-dark/10"></div>
                 </div>
                 <div class="relative flex justify-center text-xs uppercase">
-                    <span class="px-2 text-zinc-500 bg-white">
+                    <span class="bg-neu-base px-2 text-neu-muted">
                         {{ $separator }}
                     </span>
                 </div>

@@ -70,17 +70,17 @@ new class extends Component {
     $nextLesson = $currentIndex !== false && $currentIndex < $allLessons->count() - 1 ? $allLessons->get($currentIndex + 1) : null;
 @endphp
 
-<div class="bg-gray-100 min-h-screen py-6 px-4 sm:px-6 lg:px-8">
+<div class="bg-neu-base min-h-screen py-6 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto space-y-4">
 
         {{-- ── Top Navigation Bar ── --}}
         <div class="flex items-center justify-between">
-            <a href="{{ route('courses.show', $course->slug) }}" class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-semibold px-4 py-2 rounded-xl transition-colors">
+            <a href="{{ route('courses.show', $course->slug) }}" class="md-ripple neu-btn inline-flex items-center gap-2 text-neu-heading text-sm font-semibold px-4 py-2 rounded-md-md">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 পেছনে যাই
             </a>
 
-            <h1 class="text-lg font-extrabold text-gray-900 hidden sm:block truncate max-w-md">
+            <h1 class="text-lg font-extrabold text-neu-heading hidden sm:block truncate max-w-md">
                 {{ $course->title }}
             </h1>
         </div>
@@ -92,7 +92,7 @@ new class extends Component {
             <div class="lg:col-span-8 space-y-4">
                 
                 {{-- Video Container --}}
-                <div class="bg-white rounded-2xl border-2 border-amber-400/80 shadow-md overflow-hidden relative aspect-video flex items-center justify-center">
+                <div class="neu-raised rounded-md-lg overflow-hidden relative aspect-video flex items-center justify-center">
                     
                     @if($canWatch)
                         @if($lesson->video_id)
@@ -135,28 +135,28 @@ new class extends Component {
                         @else
                             {{-- Placeholder if video ID missing --}}
                             <div class="flex flex-col items-center justify-center text-center p-8">
-                                <div class="w-16 h-16 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mb-3">
+                                <div class="w-16 h-16 rounded-full neu-inset-sm text-neu-heading flex items-center justify-center mb-3">
                                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 </div>
-                                <h3 class="text-xl font-bold text-gray-900 mb-1">ভিডিও লিংক উপলব্ধ নয়</h3>
-                                <p class="text-sm text-gray-500">এই লেসনের ভিডিও খুব শীঘ্রই আপলোড করা হবে।</p>
+                                <h3 class="text-xl font-bold text-neu-heading mb-1">ভিডিও লিংক উপলব্ধ নয়</h3>
+                                <p class="text-sm text-neu-muted">এই লেসনের ভিডিও খুব শীঘ্রই আপলোড করা হবে।</p>
                             </div>
                         @endif
                     @else
                         {{-- Locked / Guest Overlay --}}
                         <div class="flex flex-col items-center justify-center text-center p-8 space-y-4">
-                            <h2 class="text-xl sm:text-2xl font-extrabold text-gray-900 max-w-lg leading-snug">
+                            <h2 class="text-xl sm:text-2xl font-extrabold text-neu-heading max-w-lg leading-snug">
                                 সবগুলো ভিডিও একসাথে দেখতে লগইন / রেজিস্টার করুন।
                             </h2>
                             @auth
                                 <form method="POST" action="{{ route('payment.checkout', $course) }}">
                                     @csrf
-                                    <button type="submit" class="bg-amber-400 hover:bg-amber-500 text-gray-950 font-extrabold px-8 py-3 rounded-xl text-base shadow-md transition-all">
+                                    <button type="submit" class="md-ripple neu-btn-primary font-extrabold px-8 py-3 rounded-md-md text-base">
                                         কোর্সে এনরোল করুন
                                     </button>
                                 </form>
                             @else
-                                <button @click="$dispatch('open-auth-drawer')" class="bg-amber-400 hover:bg-amber-500 text-gray-950 font-extrabold px-8 py-3 rounded-xl text-base shadow-md transition-all">
+                                <button @click="$dispatch('open-auth-drawer')" class="md-ripple neu-btn-primary font-extrabold px-8 py-3 rounded-md-md text-base">
                                     লগইন/সাইনআপ
                                 </button>
                             @endauth
@@ -166,11 +166,11 @@ new class extends Component {
                 </div>
 
                 {{-- Lesson Info & Prev/Next Bar --}}
-                <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="neu-panel flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
-                        <h2 class="text-lg font-extrabold text-gray-900">{{ $lesson->title }}</h2>
+                        <h2 class="text-lg font-extrabold text-neu-heading">{{ $lesson->title }}</h2>
                         @if($lesson->duration_seconds)
-                            <p class="text-xs text-gray-500 font-medium mt-1">
+                            <p class="text-xs text-neu-muted font-medium mt-1">
                                 ⏱ {{ gmdate("i:s", $lesson->duration_seconds) }} মিনিট
                             </p>
                         @endif
@@ -178,13 +178,13 @@ new class extends Component {
 
                     <div class="flex items-center gap-2 shrink-0">
                         @if($prevLesson)
-                            <a href="{{ route('courses.lesson', ['slug' => $course->slug, 'lesson_id' => $prevLesson->id]) }}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl transition-colors">
+                            <a href="{{ route('courses.lesson', ['slug' => $course->slug, 'lesson_id' => $prevLesson->id]) }}" class="neu-btn px-4 py-2 text-neu-heading text-xs font-bold rounded-md-md">
                                 ← আগের লেসন
                             </a>
                         @endif
 
                         @if($nextLesson)
-                            <a href="{{ route('courses.lesson', ['slug' => $course->slug, 'lesson_id' => $nextLesson->id]) }}" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition-colors">
+                            <a href="{{ route('courses.lesson', ['slug' => $course->slug, 'lesson_id' => $nextLesson->id]) }}" class="neu-btn-primary px-4 py-2 text-xs font-bold rounded-md-md">
                                 পরের লেসন →
                             </a>
                         @endif
@@ -194,11 +194,11 @@ new class extends Component {
             </div>
 
             {{-- ── Right Column: Playlist Sidebar (4 cols) ── --}}
-            <div class="lg:col-span-4 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col h-[680px]">
+            <div class="lg:col-span-4 neu-card overflow-hidden flex flex-col h-[680px]">
                 
                 {{-- Playlist Header & Search --}}
-                <div class="p-4 border-b border-gray-100 space-y-3 bg-white">
-                    <h3 class="text-lg font-bold text-gray-900">প্লেলিস্ট</h3>
+                <div class="p-4 space-y-3 bg-neu-base">
+                    <h3 class="text-lg font-bold text-neu-heading">প্লেলিস্ট</h3>
                     
                     {{-- Search Input --}}
                     <div class="relative">
@@ -206,16 +206,16 @@ new class extends Component {
                             type="text" 
                             x-model="search" 
                             placeholder="Search" 
-                            class="w-full pl-4 pr-10 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-purple-500 transition-colors"
+                            class="neu-input pl-4 pr-10 py-2 rounded-md-md text-sm"
                         >
-                        <svg class="w-4 h-4 text-gray-400 absolute right-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-neu-muted absolute right-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
                 </div>
 
                 {{-- Playlist Scrollable Items --}}
-                <div class="flex-1 overflow-y-auto divide-y divide-gray-100 custom-scrollbar">
+                <div class="flex-1 overflow-y-auto custom-scrollbar">
                     @php $lessonCounter = 1; @endphp
                     @foreach($course->modules as $module)
                         @foreach($module->lessons as $curriculumLesson)
@@ -228,10 +228,10 @@ new class extends Component {
                             <a 
                                 href="{{ route('courses.lesson', ['slug' => $course->slug, 'lesson_id' => $curriculumLesson->id]) }}" 
                                 x-show="search === '' || '{{ strtolower(addslashes($curriculumLesson->title)) }}'.includes(search.toLowerCase())"
-                                class="flex items-start gap-3 p-3.5 transition-colors group {{ $isActive ? 'bg-purple-50/80 border-l-4 border-purple-600' : 'hover:bg-gray-50' }}"
+                                class="flex items-start gap-3 p-3.5 transition-all group {{ $isActive ? 'neu-inset-sm' : 'hover:shadow-neu-raised-sm' }}"
                             >
                                 {{-- Icon --}}
-                                <div class="mt-0.5 w-7 h-7 rounded-full flex items-center justify-center shrink-0 {{ $isActive ? 'bg-purple-600 text-white' : ($isUnlocked ? 'bg-purple-100 text-purple-600 group-hover:bg-purple-200' : 'bg-gray-100 text-gray-400') }}">
+                                <div class="mt-0.5 w-7 h-7 rounded-full flex items-center justify-center shrink-0 {{ $isActive ? 'neu-raised-sm text-neu-heading' : ($isUnlocked ? 'neu-inset-sm text-neu-text group-hover:shadow-neu-raised-sm' : 'neu-inset-sm text-neu-muted') }}">
                                     @if($isUnlocked)
                                         <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.841z"/>
@@ -245,11 +245,11 @@ new class extends Component {
 
                                 {{-- Text Info --}}
                                 <div class="min-w-0 flex-1">
-                                    <p class="text-xs sm:text-sm font-semibold leading-snug {{ $isActive ? 'text-purple-900 font-bold' : 'text-gray-800' }}">
+                                    <p class="text-xs sm:text-sm font-semibold leading-snug {{ $isActive ? 'text-neu-heading font-bold' : 'text-neu-text' }}">
                                         {{ $lessonNum }}) {{ $curriculumLesson->title }}
                                     </p>
                                     @if($curriculumLesson->duration_seconds)
-                                        <p class="text-[11px] text-gray-400 mt-1">
+                                        <p class="text-[11px] text-neu-muted mt-1">
                                             {{ gmdate("i", $curriculumLesson->duration_seconds) }} মিনিট
                                         </p>
                                     @endif

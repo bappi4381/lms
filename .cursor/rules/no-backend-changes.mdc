@@ -1,0 +1,46 @@
+---
+description: Do not modify backend code; preserve all existing application behavior
+alwaysApply: true
+---
+
+# Backend Protection — No Changes, Preserve Behavior
+
+When working on this project (especially frontend/UI tasks), **do not change backend code** unless the user **explicitly** asks for backend work in that prompt.
+
+## Do not modify
+
+| Area | Paths / examples |
+|------|------------------|
+| Application logic | `app/` (Controllers, Models, Services, Policies, Observers, Actions, Middleware, Providers, Filament) |
+| Routes | `routes/*.php` |
+| Configuration | `config/`, `bootstrap/app.php`, `.env`, `.env.example` |
+| Database | `database/migrations/`, `database/seeders/`, `database/factories/` |
+| Backend tests | `tests/` |
+| PHP dependencies | `composer.json`, `composer.lock` |
+| Auth / payments / API contracts | Fortify, SSLCommerz, OTP, enrollment, device limits, etc. |
+
+## Allowed without backend changes
+
+- `resources/views/**` (Blade, Livewire Volt markup/styling)
+- `resources/css/**`, `resources/js/**`
+- `tailwind.config.js`, `vite.config.js`
+- Static assets in `public/` only when required for frontend (prefer Vite pipeline)
+
+## Preserve existing behavior
+
+1. **Do not** rename routes, route names, controller methods, or model attributes used by the UI.
+2. **Do not** change validation rules, authorization, payment flows, or enrollment logic.
+3. **Do not** add/remove/modify migrations, seeders, or Eloquent relationships for UI convenience.
+4. **Do not** alter Livewire/Volt **PHP logic** in view files (queries, `mount()`, public properties, actions) unless the user explicitly requests it — prefer markup/CSS/JS-only diffs.
+5. **Do not** refactor unrelated backend code while implementing UI.
+6. Use **existing** data, route helpers, and component APIs as-is (`route()`, `$course->price`, etc.).
+
+## If backend change seems required
+
+Stop and **ask the user first**. Explain why. Do not silently change backend to support UI.
+
+## Before completing a task
+
+- [ ] Diff is limited to frontend/view/styling files (or only what the user explicitly approved)
+- [ ] No changes under `app/`, `routes/`, `config/`, `database/`
+- [ ] Existing pages, auth, checkout, admin, and API behavior still work the same way

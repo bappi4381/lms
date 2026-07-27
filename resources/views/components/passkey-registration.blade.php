@@ -82,7 +82,7 @@
     </template>
 
     <template x-if="supported && showForm">
-        <div class="space-y-4 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
+        <div class="neu-inset-sm space-y-4 rounded-md-md p-4">
             <flux:input
                 label="{{ __('Passkey name') }}"
                 x-model="name"
@@ -93,7 +93,7 @@
             />
             <flux:text class="!mt-1">{{ __('Give this passkey a name to help you identify it later.') }}</flux:text>
 
-            <p x-show="error" x-text="error" x-cloak class="text-sm text-red-600"></p>
+            <p x-show="error" x-text="error" x-cloak class="text-sm text-neu-heading"></p>
 
             <div class="flex gap-2">
                 <flux:button

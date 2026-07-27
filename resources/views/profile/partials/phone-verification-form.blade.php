@@ -1,15 +1,15 @@
 <section x-data="{ step: '{{ session('otp_sent_to') ? 'verify' : 'request' }}' }">
     <header>
-        <h2 class="text-lg font-medium text-gray-900">
+        <h2 class="text-lg font-medium text-neu-heading">
             {{ __('ফোন নাম্বার ভেরিফিকেশন') }}
         </h2>
-        <p class="mt-1 text-sm text-gray-600">
+        <p class="mt-1 text-sm text-neu-muted">
             {{ __('OTP দিয়ে আপনার ফোন নাম্বার ভেরিফাই করুন।') }}
         </p>
     </header>
 
     @if ($user->phone && $user->phone_verified_at)
-        <div class="mt-4 flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3">
+        <div class="mt-4 flex items-center gap-2 text-sm text-neu-heading neu-inset-sm rounded-md-md px-4 py-3">
             <span>✓</span>
             <span>{{ $user->phone }} — ভেরিফাইড</span>
         </div>
@@ -37,10 +37,10 @@
             </div>
 
             @if (session('status'))
-                <p class="text-sm text-green-600">{{ session('status') }}</p>
+                <p class="text-sm text-neu-text">{{ session('status') }}</p>
             @endif
             @if (session('error'))
-                <p class="text-sm text-red-600">{{ session('error') }}</p>
+                <p class="text-sm text-neu-heading">{{ session('error') }}</p>
             @endif
         </div>
     @endif

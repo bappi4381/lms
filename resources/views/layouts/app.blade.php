@@ -15,31 +15,41 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <script>
+            (function () {
+                try {
+                    if (localStorage.getItem('theme') === 'dark') {
+                        document.documentElement.classList.add('dark');
+                    }
+                } catch (e) {}
+            })();
+        </script>
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+        <div class="glass-page flex flex-col">
             @include('layouts.navigation')
 
-            <!-- Page Heading -->
             @isset($header)
-                <header class="bg-white shadow">
+                <header class="glass-section">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
+                        <div class="glass-panel px-6 py-4">
+                            {{ $header }}
+                        </div>
                     </div>
                 </header>
             @endisset
 
-            <!-- Page Content -->
             <main class="flex-grow">
                 {{ $slot }}
             </main>
 
-            <!-- Footer -->
             @include('layouts.footer')
         </div>
 
         @guest
             <x-auth-drawer />
         @endguest
+
+        <x-cart-drawer />
     </body>
 </html>

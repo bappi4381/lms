@@ -1,5 +1,5 @@
 <x-layouts::auth :title="__('Forgot password')">
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-6 neu-panel">
         <x-auth-header :title="__('Forgot password')" :description="__('Enter your email to receive a password reset link')" />
 
         <!-- Session Status -->
@@ -23,7 +23,7 @@
             </flux:button>
         </form>
 
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-400">
+        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-neu-muted">
             <span>{{ __('Or, return to') }}</span>
             <flux:link :href="route('login')" wire:navigate>{{ __('log in') }}</flux:link>
         </div>

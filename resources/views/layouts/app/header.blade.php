@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen bg-white">
-        <flux:header container class="border-b border-zinc-200 bg-zinc-50">
-            <flux:sidebar.toggle class="lg:hidden mr-2" icon="bars-2" inset="left" />
+    <body class="min-h-screen bg-neu-base font-sans text-neu-text antialiased">
+        <flux:header container class="border-b-0 bg-neu-base shadow-neu-raised-sm">
+            <flux:sidebar.toggle class="mr-2 lg:hidden" icon="bars-2" inset="left" />
 
             <x-app-logo href="{{ route('dashboard') }}" wire:navigate />
 
@@ -49,7 +49,7 @@
         </flux:header>
 
         <!-- Mobile Menu -->
-        <flux:sidebar collapsible="mobile" sticky class="lg:hidden border-e border-zinc-200 bg-zinc-50">
+        <flux:sidebar collapsible="mobile" sticky class="border-e-0 bg-neu-base shadow-neu-raised-sm lg:hidden">
             <flux:sidebar.header>
                 <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
                 <flux:sidebar.collapse class="in-data-flux-sidebar-on-desktop:not-in-data-flux-sidebar-collapsed-desktop:-mr-2" />
@@ -77,7 +77,9 @@
             </flux:sidebar.nav>
         </flux:sidebar>
 
-        {{ $slot }}
+        <main class="bg-neu-base px-4 py-8 sm:px-6 lg:px-8">
+            {{ $slot }}
+        </main>
 
         <livewire:create-team-modal />
 

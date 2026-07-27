@@ -1,5 +1,5 @@
 <x-layouts::auth :title="__('Log in')">
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-6 neu-panel">
         <x-auth-header :title="__('Log in to your account')" :description="__('Enter your email and password below to log in')" />
 
         <!-- Session Status -->
@@ -55,7 +55,7 @@
             </div>
         </form>
 
-        <div class="space-x-1 text-sm text-center rtl:space-x-reverse text-zinc-600">
+        <div class="space-x-1 text-sm text-center rtl:space-x-reverse text-neu-muted">
             <span>{{ __('Don\'t have an account?') }}</span>
             <flux:link
                 :href="$teamInvitation ? route('register', ['invitation' => $teamInvitation['code']]) : route('register')"

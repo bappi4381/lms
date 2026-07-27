@@ -182,12 +182,12 @@ new class extends Component
 
                 <div class="space-y-3">
                     @foreach ($members as $member)
-                        <div class="flex items-center justify-between rounded-lg border border-zinc-200 bg-white p-4" data-test="member-row">
+                        <div class="flex items-center justify-between neu-card p-4" data-test="member-row">
                             <div class="flex items-center gap-4">
                                 <flux:avatar :name="$member['name']" :initials="$member['initials']" />
                                 <div>
-                                    <div class="font-medium">{{ $member['name'] }}</div>
-                                    <flux:text class="text-sm text-zinc-500">{{ $member['email'] }}</flux:text>
+                                    <div class="font-medium text-neu-heading">{{ $member['name'] }}</div>
+                                    <flux:text class="text-sm text-neu-muted">{{ $member['email'] }}</flux:text>
                                 </div>
                             </div>
 
@@ -251,14 +251,14 @@ new class extends Component
 
                     <div class="space-y-3">
                         @foreach ($invitations as $invitation)
-                            <div class="flex items-center justify-between rounded-lg border border-zinc-200 bg-white p-4" data-test="invitation-row">
+                            <div class="flex items-center justify-between neu-card p-4" data-test="invitation-row">
                                 <div class="flex items-center gap-4">
-                                    <div class="flex size-10 items-center justify-center rounded-full bg-zinc-100">
-                                        <flux:icon name="envelope" class="text-zinc-500" />
+                                    <div class="flex size-10 items-center justify-center rounded-full neu-inset-sm">
+                                        <flux:icon name="envelope" class="text-neu-muted" />
                                     </div>
                                     <div>
-                                        <div class="font-medium">{{ $invitation['email'] }}</div>
-                                        <flux:text class="text-sm text-zinc-500">{{ $invitation['role_label'] }}</flux:text>
+                                        <div class="font-medium text-neu-heading">{{ $invitation['email'] }}</div>
+                                        <flux:text class="text-sm text-neu-muted">{{ $invitation['role_label'] }}</flux:text>
                                     </div>
                                 </div>
 
@@ -296,10 +296,10 @@ new class extends Component
                         <flux:subheading>{{ __('Permanently delete your team') }}</flux:subheading>
                     </div>
 
-                    <div class="space-y-4 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+                    <div class="space-y-4 neu-inset-sm rounded-md-md p-4 text-neu-text">
                         <div>
-                            <p class="font-medium">{{ __('Warning') }}</p>
-                            <p class="text-sm">{{ __('Please proceed with caution, this cannot be undone.') }}</p>
+                            <p class="font-medium text-neu-heading">{{ __('Warning') }}</p>
+                            <p class="text-sm text-neu-muted">{{ __('Please proceed with caution, this cannot be undone.') }}</p>
                         </div>
 
                         <flux:modal.trigger name="delete-team">
