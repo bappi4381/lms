@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AssignDeviceId;
 use App\Http\Middleware\EnsureDeviceLimit;
+use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\SetTeamUrlDefaults;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -21,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             SetTeamUrlDefaults::class,
             AssignDeviceId::class,
+            SetLocale::class,
         ]);
         $middleware->alias([
             'device.limit' => EnsureDeviceLimit::class,

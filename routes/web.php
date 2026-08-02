@@ -9,6 +9,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SubscriptionPlanController;
 use App\Http\Controllers\SupportTicketController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -18,6 +19,21 @@ Volt::route('/courses/{slug}', 'frontend.course-show')->name('courses.show');
 Volt::route('/courses/{slug}/lessons/{lesson_id}', 'frontend.lesson-player')
     ->middleware('device.limit')
     ->name('courses.lesson');
+
+// ── Language switcher — persists the choice in session (via SetLocale
+//    middleware) and returns the visitor to whichever page they were on ──
+Route::get('/locale/{locale}', function (Request $request, string $locale) {
+    return redirect()->to(url()->previous(route('courses.index')));
+})->where('locale', 'en|bn')->name('locale.switch');
+
+// ── Locale-aware category browsing (additive — does not replace the
+//    existing /courses?category={id} filtering used elsewhere) ──
+Volt::route('/{locale}/{mainType}/{category}/{subcategory?}', 'frontend.courses')
+    ->where([
+        'locale' => 'en|bn',
+        'mainType' => 'academic|skills|test_prep|professional',
+    ])
+    ->name('categories.browse');
 
 Route::get('/dashboard', function () {
     $enrollments = auth()->user()->enrollments()

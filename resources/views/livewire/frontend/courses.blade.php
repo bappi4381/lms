@@ -12,8 +12,20 @@ new class extends Component
     public $search = '';
     public $priceFilter = 'all';
 
-    public function mount(): void
-    {
+    /**
+     * @param  string|null  $locale  Route segment from the locale-aware
+     *                                /{locale}/{mainType}/{category}/{subcategory?}
+     *                                browse route — absent on the plain /courses route.
+     * @param  string|null  $mainType  Expected main_type of the resolved top-level category.
+     * @param  string|null  $category  Locale-aware slug of a top-level category.
+     * @param  string|null  $subcategory  Locale-aware slug of a sub-category.
+     */
+    public function mount(
+        ?string $locale = null,
+        ?string $mainType = null,
+        ?string $category = null,
+        ?string $subcategory = null,
+    ): void {
         $this->categories = Category::whereNull('parent_id')
             ->where('is_active', true)
             ->orderBy('order')
@@ -22,7 +34,41 @@ new class extends Component
         $this->selectedCategory = request()->integer('category') ?: null;
         $this->search = trim((string) request()->query('q', ''));
 
+        // Locale-aware category browsing (additive to the ?category={id} filter
+        // above). Any unresolved slug is ignored rather than causing an error —
+        // the page just falls back to the unfiltered course list.
+        if (! $this->selectedCategory && $category) {
+            $this->selectedCategory = $this->resolveCategoryIdFromSlugs($locale, $mainType, $category, $subcategory);
+        }
+
         $this->loadCourses();
+    }
+
+    private function resolveCategoryIdFromSlugs(?string $locale, ?string $mainType, string $category, ?string $subcategory): ?int
+    {
+        $locale = in_array($locale, Category::LOCALES, true) ? $locale : app()->getLocale();
+        $slugColumn = "slug_{$locale}";
+
+        $topLevel = Category::whereNull('parent_id')
+            ->where('is_active', true)
+            ->where($slugColumn, $category)
+            ->when($mainType, fn ($query) => $query->where('main_type', $mainType))
+            ->first();
+
+        if (! $topLevel) {
+            return null;
+        }
+
+        if ($subcategory) {
+            $child = Category::where('parent_id', $topLevel->id)
+                ->where('is_active', true)
+                ->where($slugColumn, $subcategory)
+                ->first();
+
+            return $child?->id ?? $topLevel->id;
+        }
+
+        return $topLevel->id;
     }
 
     public function filterByCategory(?int $categoryId): void
