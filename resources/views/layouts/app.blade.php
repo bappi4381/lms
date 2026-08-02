@@ -25,7 +25,7 @@
             })();
         </script>
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased bg-neu-base text-neu-text">
         <div class="glass-page flex flex-col">
             @include('layouts.navigation')
 

@@ -4,15 +4,22 @@ use App\Models\Category;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Review;
+use App\Models\SubscriptionPlan;
 use Livewire\Volt\Component;
+
+use function Livewire\Volt\layout;
+
+layout('layouts::pintar');
 
 new class extends Component
 {
     public $categories = [];
     public $featuredCourses = [];
     public $testimonials = [];
+    public $subscriptionPlans = [];
     public $stats = [];
     public $satisfactionRate = 98;
+    public $totalReviews = 0;
 
     public function mount(): void
     {
@@ -23,20 +30,21 @@ new class extends Component
             ->get();
 
         $this->featuredCourses = Course::where('is_published', true)
-            ->with(['category', 'instructor'])
+            ->with(['category', 'instructor', 'modules.lessons'])
             ->withCount('enrollments')
             ->latest()
-            ->take(8)
+            ->take(12)
             ->get();
 
         $this->testimonials = Review::where('is_approved', true)
             ->where('rating', '>=', 4)
             ->with(['user', 'course'])
             ->latest()
-            ->take(4)
+            ->take(6)
             ->get();
 
         $avgRating = Review::where('is_approved', true)->avg('rating');
+        $this->totalReviews = Review::where('is_approved', true)->count();
         $this->satisfactionRate = $avgRating
             ? (int) round(($avgRating / 5) * 100)
             : 98;
@@ -46,6 +54,11 @@ new class extends Component
             'students' => Enrollment::distinct('user_id')->count('user_id'),
             'instructors' => Course::where('is_published', true)->whereNotNull('instructor_id')->distinct('instructor_id')->count('instructor_id'),
         ];
+
+        $this->subscriptionPlans = SubscriptionPlan::where('is_active', true)
+            ->orderBy('price')
+            ->take(3)
+            ->get();
     }
 
     public function bn(int|string $number): string
@@ -64,23 +77,10 @@ new class extends Component
         }
 
         if ($number >= 1_000) {
-            return rtrim(rtrim(number_format($number / 1_000, 1), '0'), '.').'k';
+            return rtrim(rtrim(number_format($number / 1_000, 1), '0'), '.').'K';
         }
 
         return (string) $number;
-    }
-
-    public function courseBadge($course, int $index): ?array
-    {
-        if ($index < 2) {
-            return ['label' => 'New', 'class' => 'bg-orange-500'];
-        }
-
-        if (($course->enrollments_count ?? 0) >= 50) {
-            return ['label' => 'Bestseller', 'class' => 'bg-red-500'];
-        }
-
-        return null;
     }
 
     public function effectivePrice($course): float
@@ -97,321 +97,543 @@ new class extends Component
         return $course->discount_price && $course->discount_price < $course->price;
     }
 
-    public function categoryIcon(?Category $category, int $index): string
+    public function lessonCount($course): int
     {
-        if ($category?->icon) {
-            if (str_contains($category->icon, 'fa-') || str_starts_with($category->icon, 'fa')) {
-                $icon = (str_contains($category->icon, 'fa-solid') || str_contains($category->icon, 'fas ') || str_contains($category->icon, 'far ') || str_contains($category->icon, 'fab '))
-                    ? $category->icon
-                    : 'fa-solid '.$category->icon;
-
-                return '<i class="'.$icon.' text-lg text-brand-navy"></i>';
-            }
-
-            if (! str_contains($category->icon, '<')) {
-                return '<span class="text-lg">'.$category->icon.'</span>';
-            }
-
-            return $category->icon;
+        if (! $course->relationLoaded('modules')) {
+            return 0;
         }
 
-        $defaults = [
-            'fa-solid fa-graduation-cap',
-            'fa-solid fa-laptop-code',
-            'fa-solid fa-spell-check',
-            'fa-solid fa-briefcase',
-            'fa-solid fa-book-open',
-            'fa-solid fa-gift',
-        ];
-
-        return '<i class="'.($defaults[$index] ?? 'fa-solid fa-book').' text-lg text-brand-navy"></i>';
+        return (int) $course->modules->sum(fn ($module) => $module->lessons->count());
     }
 
-    public function categoryCountLabel(Category $category, int $index): string
+    public function initials(?string $name): string
     {
-        $count = max($category->courses_count, 1);
+        if (! $name) {
+            return 'SS';
+        }
 
-        return $this->bn($count).'+ কোর্স';
+        $parts = preg_split('/\s+/', trim($name));
+
+        return strtoupper(substr($parts[0], 0, 1).substr($parts[1] ?? '', 0, 1));
     }
 };
 ?>
 
-<div>
+@php
+    $avgRatingDisplay = number_format($satisfactionRate / 20, 1);
+    $courseCount = max($stats['courses'], 150);
+    $studentCount = max($stats['students'], 200000);
+    $pricingFeatures = [
+        'Limited access to all courses',
+        '24/7 priority support via chat, email & phone',
+        'Dedicated mentor for personalized guidance',
+        'Basic mentor session',
+        'Unlimited access to all courses, incl. exclusive ones',
+        'Premium resources, toolkits & downloadable materials',
+        'Unlimited access for the full subscription duration',
+    ];
+    $featureCards = [
+        ['bg' => 'rgba(255,122,46,.12)', 'stroke' => '#FF7A2E', 'title' => 'Interactive Learning', 'desc' => 'Video, quizzes, and assignments with hands-on practice.'],
+        ['bg' => 'rgba(28,114,111,.12)', 'stroke' => '#1C726F', 'title' => 'Expert Instructors', 'desc' => 'Industry-experienced mentors guide you every step.'],
+        ['bg' => 'rgba(255,209,119,.3)', 'stroke' => '#E06524', 'title' => 'Flexible Schedules', 'desc' => 'Learn at your own pace — anytime, on any device.'],
+        ['bg' => 'rgba(14,97,95,.12)', 'stroke' => '#14615F', 'title' => 'Affordable Pricing', 'desc' => 'Flexible pricing and subscription options for everyone.'],
+    ];
+    $categoryIcons = [
+        '<path d="M9 17l-5-5 5-5M15 7l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+        '<path d="M4 7h16v11H4z" stroke="currentColor" stroke-width="1.6"/><path d="M9 7V5.5A1.5 1.5 0 0110.5 4h3A1.5 1.5 0 0115 5.5V7" stroke="currentColor" stroke-width="1.6"/>',
+        '<circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.6"/><path d="M5 20c1-3.5 4-5.5 7-5.5s6 2 7 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+        '<path d="M4 19V6a2 2 0 012-2h9l5 5v10a2 2 0 01-2 2H6a2 2 0 01-2-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 4v5h5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+    ];
+    $categoryIconBgs = [
+        'rgba(255,255,255,.14)',
+        'rgba(255,122,46,.12)',
+        'rgba(28,114,111,.12)',
+        'rgba(255,209,119,.25)',
+    ];
+    $categoryIconColors = ['#FFD177', '#FF7A2E', '#1C726F', '#E06524'];
+    $fallbackTestimonials = [
+        ['quote' => 'Every module was a journey of discovery. The engaging content empowered me to approach challenges at work with newfound confidence.', 'name' => "Michael O'Brien", 'role' => 'Business Analyst', 'initials' => 'MO', 'bg' => '#1C726F'],
+        ['quote' => 'A genuine game changer for professionals — the lessons are practical, the pacing is smart, and mentor feedback made all the difference.', 'name' => 'James Border', 'role' => 'Senior Marketing', 'initials' => 'JB', 'bg' => '#FF7A2E'],
+        ['quote' => 'Engaging and empowering from lesson one. The interactive exercises made even harder topics click almost immediately.', 'name' => 'Indra Scopee', 'role' => 'Graphic Designer', 'initials' => 'IS', 'bg' => '#E06524'],
+        ['quote' => 'A game changer for professionals — every module built on the last, and mentor sessions kept me accountable.', 'name' => 'Sukay Negara', 'role' => 'Business Analyst', 'initials' => 'SN', 'bg' => '#14615F'],
+        ['quote' => 'Every module was a journey of discovery. Actionable insights gave me real confidence to lead projects at work.', 'name' => "Michael O'Brien", 'role' => 'Senior Marketing', 'initials' => 'MO', 'bg' => '#FFD177', 'text' => '#0E1E1D'],
+        ['quote' => 'Engaging content, clear structure, and an instructor team that actually answers your questions.', 'name' => 'Rico Saputra', 'role' => 'Graphic Designer', 'initials' => 'RS', 'bg' => '#1D7270'],
+    ];
+    $fallbackPlans = [
+        ['name' => 'Basic Package', 'price' => 50, 'interval' => 'month', 'features' => [0, 1, 2, 3]],
+        ['name' => 'Premium Package', 'price' => 150, 'interval' => 'month', 'popular' => true, 'features' => [4, 1, 2, 5]],
+        ['name' => 'Complete Package', 'price' => 300, 'interval' => 'month', 'features' => [4, 2, 5, 6]],
+    ];
+@endphp
+
+<div
+    x-data="{
+        initReveal() {
+            const els = this.$root.querySelectorAll('.pintar-home-reveal');
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in');
+                        io.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+            els.forEach(el => io.observe(el));
+        }
+    }"
+    x-init="initReveal()"
+>
     {{-- Hero --}}
-    <section class="glass-hero">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-28 md:pt-20 md:pb-32 text-center relative z-10">
-            <span class="inline-flex items-center gap-2 glass-tag text-xs sm:text-sm font-bold px-4 py-2 rounded-full mb-6">
-                <svg class="w-4 h-4 text-brand-gold shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                {{ $this->bn(number_format(max($stats['students'], 53000))) }}+ শিক্ষার্থীর আস্থা
-            </span>
-
-            <h1 class="text-3xl sm:text-4xl md:text-[2.75rem] font-extrabold leading-tight mb-4 tracking-tight">
-                বাংলাদেশের সবচেয়ে বড়<br class="hidden sm:block"> শিক্ষা প্ল্যাটফর্ম
-            </h1>
-
-            <p class="text-sm sm:text-base md:text-lg text-neu-muted mb-8 max-w-2xl mx-auto leading-relaxed">
-                Bangladesh's Biggest Education Platform — একাডেমিক থেকে ক্যারিয়ার, সব একসাথে
-            </p>
-
-            <form action="{{ route('courses.list') }}" method="GET" class="glass-hero-inner p-1.5 sm:p-2 flex items-center gap-2 max-w-2xl mx-auto">
-                <svg class="w-5 h-5 text-brand-blue ml-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/></svg>
-                <input
-                    type="text"
-                    name="q"
-                    placeholder="কোর্স, বই বা স্কিল খুঁজুন — যেমন &quot;SSC&quot;, &quot;Excel&quot;, &quot;IELTS&quot;"
-                    class="flex-1 border-0 focus:ring-0 text-sm text-gray-900 placeholder-gray-400 bg-transparent min-w-0"
-                >
-                <button type="submit" class="md-ripple shrink-0 glass-btn rounded-full px-5 sm:px-8 py-3 text-sm min-h-[44px]">
-                    খুঁজুন
-                </button>
-            </form>
-
-            <div class="flex flex-wrap justify-center gap-2.5 mt-6">
-                @foreach(['SSC', 'HSC', 'BCS', 'IELTS', 'Excel'] as $tag)
-                    <a href="{{ route('courses.list', ['q' => $tag]) }}" class="md-ripple glass-tag text-xs sm:text-sm font-semibold px-4 py-2 rounded-full transition-colors min-h-[36px] inline-flex items-center">
-                        {{ $tag }}
+    <section class="pintar-home-hero">
+        <div class="pintar-home-container pintar-home-hero-grid">
+            <div class="pintar-home-reveal">
+                <div class="pintar-home-eyebrow">See how our teachers learn</div>
+                <h1>We provide<br><span>fun e-course</span></h1>
+                <p class="pintar-home-hero-copy">Learn new skills the way that actually sticks — bite-sized lessons, live mentors, and a community that keeps you moving forward.</p>
+                <div class="pintar-home-hero-ctas">
+                    <a href="#courses" class="pintar-home-btn pintar-home-btn-primary">
+                        View Courses
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </a>
-                @endforeach
+                    <div class="pintar-home-play-inline">
+                        <span class="pintar-home-play-btn-sm" aria-hidden="true"></span>
+                        Watch intro
+                    </div>
+                </div>
+                <div class="pintar-home-trust-row">
+                    <div class="pintar-home-trust-item">
+                        <strong>{{ $this->bn($courseCount) }}+</strong>
+                        <span>Video courses</span>
+                    </div>
+                    <div class="pintar-home-trust-item">
+                        <strong>{{ $this->bn($avgRatingDisplay) }}/5</strong>
+                        <span>Average rating</span>
+                    </div>
+                    <div class="pintar-home-trust-item">
+                        <strong>{{ $this->bn($this->formatCompact($studentCount)) }}+</strong>
+                        <span>Active students</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pintar-home-hero-visual pintar-home-reveal">
+                <div class="pintar-home-hero-card">
+                    <span class="pintar-home-hero-blob b1"></span>
+                    <span class="pintar-home-hero-blob b2"></span>
+                    <div class="pintar-home-hero-figure"></div>
+                    <button type="button" class="pintar-home-hero-play-main" aria-label="Watch intro video">
+                        <span class="pintar-home-hero-play-ring"></span>
+                    </button>
+                </div>
+                <div class="pintar-home-badge-chip c1">
+                    <span class="pintar-home-badge-icon" style="background:rgba(255,122,46,.12)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z" stroke="#FF7A2E" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5" stroke="#FF7A2E" stroke-width="1.6"/></svg>
+                    </span>
+                    <span><strong>{{ $this->bn(max($courseCount, 320)) }}+</strong><small>Certified courses</small></span>
+                </div>
+                <div class="pintar-home-badge-chip c2">
+                    <span class="pintar-home-badge-icon" style="background:rgba(28,114,111,.12)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 4h16v12H8l-4 4V4z" stroke="#1C726F" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                    </span>
+                    <span><strong>24/7</strong><small>Mentor support</small></span>
+                </div>
             </div>
         </div>
     </section>
 
-    {{-- Stats --}}
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 sm:-mt-20 relative z-10">
-        <div class="glass-stat p-6 sm:p-8 grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
-            @foreach([
-                ['value' => $this->bn(number_format(max($stats['students'], 50000))).'+', 'label' => 'শিক্ষার্থী'],
-                ['value' => $this->bn(number_format(max($stats['courses'], 500))).'+', 'label' => 'কোর্স'],
-                ['value' => $this->bn(number_format(max($stats['instructors'], 80))).'+', 'label' => 'ইন্সট্রাক্টর'],
-                ['value' => $this->bn($satisfactionRate).'%', 'label' => 'সন্তুষ্টি হার'],
-            ] as $stat)
-                <div class="text-center px-2">
-                    <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-brand-navy tracking-tight">{{ $stat['value'] }}</div>
-                    <div class="text-xs sm:text-sm text-gray-500 font-semibold mt-1.5">{{ $stat['label'] }}</div>
+    {{-- About --}}
+    <section id="about" class="pintar-home-section">
+        <div class="pintar-home-container pintar-home-about-grid">
+            <div class="pintar-home-about-visual pintar-home-reveal">
+                <div class="pintar-home-collage"><div class="pintar-home-collage-inner"></div></div>
+                <div class="pintar-home-stat-card">
+                    <div class="pintar-home-avatar-stack">
+                        <span class="avatar" style="background:#1C726F">MO</span>
+                        <span class="avatar" style="background:#FF7A2E">JB</span>
+                        <span class="avatar" style="background:#FFD177;color:#0E1E1D">IS</span>
+                    </div>
+                    <div class="txt">
+                        <strong>Students Happy!</strong>
+                        <span class="stars">★★★★★ {{ $avgRatingDisplay }} average</span>
+                    </div>
                 </div>
-            @endforeach
+            </div>
+            <div class="pintar-home-about-copy pintar-home-reveal">
+                <div class="pintar-home-eyebrow">Abouts us</div>
+                <h2>Founded in 2015</h2>
+                <p>E-Learning Adventures is committed to transforming the traditional learning landscape. With a blend of engaging content, interactive exercises, and cutting-edge technology, we ensure every learner finds their path to success.</p>
+                <a href="#courses" class="pintar-home-btn-ghost">
+                    Learn more
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="#E06524" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </a>
+            </div>
         </div>
-    </div>
+    </section>
+
+    {{-- Popular Courses --}}
+    <section id="courses" class="pintar-home-section" x-data="{ activeCategory: 'all' }">
+        <div class="pintar-home-container">
+            <div class="pintar-home-section-head pintar-home-reveal">
+                <div class="pintar-home-eyebrow">Popular Courses</div>
+                <h2>Course that change your life!</h2>
+            </div>
+
+            <div class="pintar-home-filter-row pintar-home-reveal">
+                <button type="button" class="pintar-home-filter-pill" :class="activeCategory === 'all' ? 'active' : ''" @click="activeCategory = 'all'">All</button>
+                @foreach($categories->take(5) as $category)
+                    <button type="button" class="pintar-home-filter-pill" :class="activeCategory === '{{ $category->id }}' ? 'active' : ''" @click="activeCategory = '{{ $category->id }}'">{{ $category->name }}</button>
+                @endforeach
+            </div>
+
+            <div class="pintar-home-course-grid">
+                @forelse($featuredCourses->take(4) as $index => $course)
+                    <div x-show="activeCategory === 'all' || activeCategory === '{{ $course->category_id }}'" x-transition.opacity.duration.200ms wire:key="home-course-{{ $course->id }}">
+                        <x-course-card-pintar
+                            :course="$course"
+                            :index="$index"
+                            :effective-price="$this->effectivePrice($course)"
+                            :has-discount="$this->hasDiscount($course)"
+                            :lesson-count="$this->lessonCount($course)"
+                        />
+                    </div>
+                @empty
+                    <div class="col-span-full py-16 text-center pintar-home-reveal">
+                        <p class="text-lg font-bold text-brand-navy">No courses available at the moment.</p>
+                    </div>
+                @endforelse
+            </div>
+
+            <div class="text-center mt-11 pintar-home-reveal">
+                <a href="{{ route('courses.list') }}" class="pintar-home-btn pintar-home-btn-outline">
+                    View Courses
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="#0E1E1D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </a>
+            </div>
+        </div>
+    </section>
 
     {{-- Categories --}}
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-6">
-        <div class="text-center mb-10 sm:mb-12">
-            <p class="text-xs sm:text-sm font-bold text-brand-blue mb-2 tracking-wide uppercase">ক্যাটাগরি</p>
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-brand-navy tracking-tight">আপনার যা প্রয়োজন, সবই এখানে</h2>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
-            @forelse($categories->take(6) as $index => $category)
-                <a href="{{ route('courses.list', ['category' => $category->id]) }}" class="md-ripple group glass-card-hover p-5 sm:p-6 text-center hover:border-brand-blue/30">
-                    <div class="w-14 h-14 rounded-2xl bg-brand-blue-light flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform">
-                        {!! $this->categoryIcon($category, $index) !!}
-                    </div>
-                    <div class="text-sm sm:text-base font-bold text-brand-navy leading-snug">{{ $category->name }}</div>
-                    <div class="text-xs text-gray-400 mt-1.5 font-medium">{{ $this->categoryCountLabel($category, $index) }}</div>
-                </a>
-            @empty
-                @foreach([
-                    ['name' => 'Academic', 'count' => '১২০+ কোর্স', 'icon' => 'fa-graduation-cap'],
-                    ['name' => 'Skills', 'count' => '৮০+ কোর্স', 'icon' => 'fa-laptop-code'],
-                    ['name' => 'Test Prep', 'count' => '৩৫+ কোর্স', 'icon' => 'fa-spell-check'],
-                    ['name' => 'CA/Maritime', 'count' => '৪৫+ কোর্স', 'icon' => 'fa-briefcase'],
-                    ['name' => 'E-books', 'count' => '৩০০+ বই', 'icon' => 'fa-book-open'],
-                    ['name' => 'Free Resource', 'count' => '৫০০+ রিসোর্স', 'icon' => 'fa-gift'],
-                ] as $fallback)
-                    <a href="{{ $fallback['name'] === 'Free Resource' ? route('courses.list', ['resources' => 1]) : route('courses.list') }}" class="md-ripple group glass-card-hover p-5 sm:p-6 text-center">
-                        <div class="w-14 h-14 rounded-2xl bg-brand-blue-light flex items-center justify-center mx-auto mb-4">
-                            <i class="fa-solid {{ $fallback['icon'] }} text-lg text-brand-navy"></i>
-                        </div>
-                        <div class="text-sm sm:text-base font-bold text-brand-navy">{{ $fallback['name'] }}</div>
-                        <div class="text-xs text-gray-400 mt-1.5">{{ $fallback['count'] }}</div>
+    <section class="pintar-home-section">
+        <div class="pintar-home-container">
+            <div class="pintar-home-cat-top">
+                <div class="pintar-home-reveal">
+                    <div class="pintar-home-eyebrow">Course categories</div>
+                    <h2>Course that change your life!</h2>
+                </div>
+                <div class="pintar-home-reveal">
+                    <p style="color:var(--on-surface-muted);line-height:1.7;">Explore academic, skill, test prep, and professional tracks — start from the category that matches your goals.</p>
+                    <a href="{{ route('courses.list') }}" class="pintar-home-btn-ghost" style="margin-top:18px;">
+                        Learn more
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="#E06524" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </a>
-                @endforeach
-            @endforelse
+                </div>
+            </div>
+
+            <div class="pintar-home-cat-grid">
+                @forelse($categories->take(4) as $index => $category)
+                    <a href="{{ route('courses.list', ['category' => $category->id]) }}" @class(['pintar-home-cat-card', 'big' => $index === 0, 'pintar-home-reveal'])>
+                        <span class="pintar-home-cat-icon" style="background:{{ $categoryIconBgs[$index] ?? $categoryIconBgs[0] }};color:{{ $categoryIconColors[$index] ?? $categoryIconColors[0] }}">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">{!! $categoryIcons[$index] ?? $categoryIcons[0] !!}</svg>
+                        </span>
+                        <div>
+                            <h3>{{ $category->name }}</h3>
+                            <p>{{ $this->bn(max($category->courses_count, 1)) }}+ courses available.</p>
+                            <span class="pintar-home-btn-ghost" style="margin-top:14px;color:{{ $index === 0 ? '#FFD177' : 'var(--brand-orange-soft)' }};">
+                                Learn more
+                                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                        </div>
+                    </a>
+                @empty
+                    @foreach(['Tech and Web Development', 'Business & Leadership', 'Languages', 'Science'] as $index => $name)
+                        <div @class(['pintar-home-cat-card', 'big' => $index === 0, 'pintar-home-reveal'])>
+                            <span class="pintar-home-cat-icon" style="background:{{ $categoryIconBgs[$index] }};color:{{ $categoryIconColors[$index] }}">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">{!! $categoryIcons[$index] !!}</svg>
+                            </span>
+                            <div>
+                                <h3>{{ $name }}</h3>
+                                <p>Explore courses in this category.</p>
+                            </div>
+                        </div>
+                    @endforeach
+                @endforelse
+            </div>
         </div>
     </section>
 
-    {{-- Featured Courses Carousel --}}
-    <section x-data="{ scrollCarousel(direction) { $refs.courseCarousel.scrollBy({ left: direction * 320, behavior: 'smooth' }); } }" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-6">
-        <div class="flex items-end justify-between gap-4 mb-8">
-            <div>
-                <p class="text-xs sm:text-sm font-bold text-brand-blue mb-2 tracking-wide uppercase">ফিচারড কোর্স</p>
-                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-brand-navy tracking-tight">জনপ্রিয় কোর্সসমূহ</h2>
+    {{-- Why Choose Us --}}
+    <section class="pintar-home-section">
+        <div class="pintar-home-container">
+            <div class="pintar-home-why-top">
+                <div class="pintar-home-section-head pintar-home-reveal" style="margin-bottom:0;">
+                    <div class="pintar-home-eyebrow">Why choose us</div>
+                    <h2>Our courses are designed to be immersive and interactive!</h2>
+                </div>
+                <a href="{{ route('courses.list') }}" class="pintar-home-btn-ghost pintar-home-reveal">
+                    Learn more
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="#E06524" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </a>
             </div>
 
-            <div class="hidden sm:flex items-center gap-2 shrink-0">
-                <button
-                    type="button"
-                    @click="scrollCarousel(-1)"
-                    class="inline-flex items-center justify-center w-11 h-11 rounded-full glass-icon-btn text-brand-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue"
-                    aria-label="Previous courses"
-                >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                </button>
-                <button
-                    type="button"
-                    @click="scrollCarousel(1)"
-                    class="inline-flex items-center justify-center w-11 h-11 rounded-full glass-icon-btn text-brand-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue"
-                    aria-label="Next courses"
-                >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                </button>
+            <div class="pintar-home-feature-grid">
+                @foreach($featureCards as $feature)
+                    <article class="pintar-home-feature-card pintar-home-reveal">
+                        <span class="pintar-home-icon-circle" style="background:{{ $feature['bg'] }}">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5h16v11H8l-4 4V5z" stroke="{{ $feature['stroke'] }}" stroke-width="1.7" stroke-linejoin="round"/></svg>
+                        </span>
+                        <h3>{{ $feature['title'] }}</h3>
+                        <p>{{ $feature['desc'] }}</p>
+                    </article>
+                @endforeach
             </div>
         </div>
+    </section>
 
-        <div x-ref="courseCarousel" class="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory hide-scrollbar scroll-smooth">
-            @forelse($featuredCourses as $index => $course)
-                @php $badge = $this->courseBadge($course, $index); @endphp
-                <article class="snap-start shrink-0 w-[85%] sm:w-[calc(50%-0.625rem)] lg:w-[calc(25%-0.9375rem)] flex flex-col glass-card-hover overflow-hidden group">
-                    <a href="{{ route('courses.show', $course->slug) }}" class="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-inset">
-                        <div class="relative aspect-video overflow-hidden bg-brand-blue-light">
-                            @if($course->thumbnail)
-                                <img
-                                    src="{{ asset('storage/'.$course->thumbnail) }}"
-                                    alt="{{ $course->title }}"
-                                    loading="lazy"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                >
+    {{-- Pricing --}}
+    <section id="pricing" class="pintar-home-section">
+        <div class="pintar-home-container">
+            <div class="pintar-home-section-head center pintar-home-reveal">
+                <div class="pintar-home-eyebrow">Pricing</div>
+                <h2>Pricing Plan</h2>
+            </div>
+
+            <div class="pintar-home-pricing-grid">
+                @forelse($subscriptionPlans as $index => $plan)
+                    @if($index === 1)
+                        <div class="pintar-home-price-card popular pintar-home-reveal">
+                            <span class="pintar-home-popular-flag">Popular</span>
+                            <h3>{{ $plan->name }}</h3>
+                            <p class="pintar-home-tier-desc">{{ $plan->description ?? 'Serious learners, industry professionals, and those seeking comprehensive career development.' }}</p>
+                            <div class="pintar-home-price-value">
+                                <strong>৳{{ number_format($plan->price, 0) }}</strong>
+                                <span>/ {{ $plan->interval === 'yearly' ? 'year' : 'month' }}</span>
+                            </div>
+                            @auth
+                                <form method="POST" action="{{ route('payment.checkout-subscription', $plan) }}">
+                                    @csrf
+                                    <button type="submit" class="pintar-home-btn pintar-home-btn-primary">Start Learn</button>
+                                </form>
                             @else
-                                <div class="course-thumb-pattern absolute inset-0"></div>
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <div class="w-12 h-12 rounded-full glass-icon-accent flex items-center justify-center">
-                                        <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
-                                    </div>
-                                </div>
-                            @endif
-
-                            @if($badge)
-                                <span class="absolute top-3 left-3 {{ $badge['class'] }} text-white text-[11px] font-bold px-2.5 py-1 rounded-md shadow-sm">
-                                    {{ $badge['label'] }}
-                                </span>
-                            @endif
+                                <button type="button" @click="$dispatch('open-auth-drawer')" class="pintar-home-btn pintar-home-btn-primary">Start Learn</button>
+                            @endauth
+                            <ul class="pintar-home-tier-list">
+                                @foreach(array_slice($pricingFeatures, 4, 4) as $feat)
+                                    <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#FFD177" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>{{ $feat }}</li>
+                                @endforeach
+                            </ul>
                         </div>
-                    </a>
-
-                    <div class="p-4 sm:p-5 flex flex-col flex-1">
-                        @if($course->category)
-                            <p class="text-[11px] sm:text-xs text-brand-blue font-bold mb-1.5 uppercase tracking-wide">{{ $course->category->name }}</p>
-                        @endif
-
-                        <h3 class="text-sm sm:text-[15px] font-bold text-brand-navy mb-2 line-clamp-2 leading-snug min-h-[2.5rem]">
-                            <a href="{{ route('courses.show', $course->slug) }}" class="hover:text-brand-blue transition-colors focus-visible:underline">
-                                {{ $course->title }}
-                            </a>
-                        </h3>
-
-                        <div class="text-xs text-gray-500 mb-2.5 flex items-center gap-1.5">
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                            <span class="truncate">{{ $course->instructor?->name ?? 'SecondShiftBD' }}</span>
+                    @else
+                        <div class="pintar-home-price-card pintar-home-reveal">
+                            <h3>{{ $plan->name }}</h3>
+                            <p class="pintar-home-tier-desc">{{ $plan->description ?? 'Serious learners, industry professionals, and those seeking comprehensive career development.' }}</p>
+                            <div class="pintar-home-price-value">
+                                <strong>৳{{ number_format($plan->price, 0) }}</strong>
+                                <span>/ {{ $plan->interval === 'yearly' ? 'year' : 'month' }}</span>
+                            </div>
+                            @auth
+                                <form method="POST" action="{{ route('payment.checkout-subscription', $plan) }}">
+                                    @csrf
+                                    <button type="submit" class="pintar-home-btn pintar-home-btn-outline">Start Learn</button>
+                                </form>
+                            @else
+                                <button type="button" @click="$dispatch('open-auth-drawer')" class="pintar-home-btn pintar-home-btn-outline">Start Learn</button>
+                            @endauth
+                            <ul class="pintar-home-tier-list">
+                                @foreach(array_map(fn ($i) => $pricingFeatures[$i], $index === 0 ? [0, 1, 2, 3] : [4, 2, 5, 6]) as $feat)
+                                    <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#1C726F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>{{ $feat }}</li>
+                                @endforeach
+                            </ul>
                         </div>
-
-                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs mb-4">
-                            <span class="inline-flex items-center gap-1 font-bold text-brand-navy">
-                                <svg class="w-3.5 h-3.5 text-brand-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                {{ $course->averageRating() > 0 ? $course->averageRating() : '4.8' }}
-                            </span>
-                            <span class="text-gray-400">({{ $this->bn($course->reviewsCount() ?: 320) }})</span>
-                            <span class="text-gray-300">•</span>
-                            <span class="text-gray-500">{{ $this->formatCompact(max($course->enrollments_count, 125)) }}</span>
-                        </div>
-
-                        <div class="mt-auto flex items-baseline gap-2">
-                            <span class="text-lg sm:text-xl font-extrabold text-brand-navy">৳{{ number_format($this->effectivePrice($course), 0) }}</span>
-                            @if($this->hasDiscount($course))
-                                <span class="text-sm text-gray-400 line-through">৳{{ number_format($course->price, 0) }}</span>
+                    @endif
+                @empty
+                    @foreach($fallbackPlans as $tier)
+                        <div @class(['pintar-home-price-card', 'popular' => ! empty($tier['popular']), 'pintar-home-reveal'])>
+                            @if(! empty($tier['popular']))
+                                <span class="pintar-home-popular-flag">Popular</span>
                             @endif
+                            <h3>{{ $tier['name'] }}</h3>
+                            <p class="pintar-home-tier-desc">Serious learners, industry professionals, and those seeking comprehensive career development.</p>
+                            <div class="pintar-home-price-value">
+                                <strong>${{ $tier['price'] }}</strong>
+                                <span>/ {{ $tier['interval'] }}</span>
+                            </div>
+                            <a href="{{ route('subscriptions.index') }}" class="pintar-home-btn {{ ! empty($tier['popular']) ? 'pintar-home-btn-primary' : 'pintar-home-btn-outline' }}">Start Learn</a>
+                            <ul class="pintar-home-tier-list">
+                                @foreach($tier['features'] as $featIndex)
+                                    <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="{{ ! empty($tier['popular']) ? '#FFD177' : '#1C726F' }}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>{{ $pricingFeatures[$featIndex] }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endforeach
+                @endforelse
+            </div>
+        </div>
+    </section>
+
+    {{-- Mobile App --}}
+    <section class="pintar-home-section">
+        <div class="pintar-home-container">
+            <div class="pintar-home-app-section">
+                <div class="pintar-home-container pintar-home-app-grid">
+                    <div class="pintar-home-reveal">
+                        <div class="pintar-home-eyebrow">Our mobile app</div>
+                        <h2>Take learning on the go!</h2>
+                        <p>Download our app today and access your courses anytime, anywhere. Available on iOS and Android.</p>
+                        <div class="pintar-home-app-points">
+                            <div class="pintar-home-app-point">
+                                <span class="dot"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#FFD177" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                                <span>FREE access to all courses — let's install our app!</span>
+                            </div>
+                            <div class="pintar-home-app-point">
+                                <span class="dot"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#FFD177" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                                <span>Discount up to 70% for the first year</span>
+                            </div>
+                            <div class="pintar-home-app-point">
+                                <span class="dot"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#FFD177" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                                <span>Courses stay up to date — always the newest content</span>
+                            </div>
+                        </div>
+                        <a href="{{ route('courses.list') }}" class="pintar-home-btn pintar-home-btn-primary">
+                            More category
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </a>
+                        <div class="pintar-home-app-stat">
+                            <strong>{{ $this->bn($this->formatCompact($studentCount)) }}+</strong>
+                            <small>Active Students</small>
                         </div>
                     </div>
-                </article>
-            @empty
-                <div class="w-full flex flex-col items-center justify-center py-20 glass-empty">
-                    <svg class="w-14 h-14 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                    <p class="text-lg text-brand-navy font-bold">বর্তমানে কোনো কোর্স পাওয়া যায়নি।</p>
-                    <p class="text-gray-500 mt-1 text-sm">শীঘ্রই নতুন কোর্স যুক্ত করা হবে।</p>
-                </div>
-            @endforelse
-        </div>
 
-        <div class="mt-6 h-1.5 rounded-full bg-brand-blue-light overflow-hidden max-w-4xl">
-            <div class="h-full w-1/3 rounded-full bg-brand-blue"></div>
+                    <div class="pintar-home-reveal">
+                        <div class="pintar-home-phone">
+                            <div class="pintar-home-phone-notch"></div>
+                            <div class="pintar-home-phone-screen">
+                                <div class="pintar-home-phone-app-bar">
+                                    <strong>My Courses</strong>
+                                    <span class="pintar-home-ring-progress"></span>
+                                </div>
+                                <div class="pintar-home-phone-card">
+                                    <span class="sw" style="background:#1C726F"></span>
+                                    <div class="meta"><strong>UI/UX Design</strong><small>Lesson 6 of 12</small><div class="pintar-home-phone-bar"><i style="width:55%"></i></div></div>
+                                </div>
+                                <div class="pintar-home-phone-card">
+                                    <span class="sw" style="background:#FF7A2E"></span>
+                                    <div class="meta"><strong>Digital Marketing</strong><small>Lesson 3 of 9</small><div class="pintar-home-phone-bar"><i style="width:30%"></i></div></div>
+                                </div>
+                                <div class="pintar-home-phone-card">
+                                    <span class="sw" style="background:#FFD177"></span>
+                                    <div class="meta"><strong>Spanish A1</strong><small>Lesson 8 of 10</small><div class="pintar-home-phone-bar"><i style="width:80%"></i></div></div>
+                                </div>
+                                <div class="pintar-home-store-pills">
+                                    <span class="pintar-home-store-pill">App Store</span>
+                                    <span class="pintar-home-store-pill">Google Play</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
     {{-- Testimonials --}}
-    <section id="testimonials" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-6">
-        <div class="text-center mb-10 sm:mb-12">
-            <p class="text-xs sm:text-sm font-bold text-brand-blue mb-2 tracking-wide uppercase">শিক্ষার্থীদের মতামত</p>
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-brand-navy tracking-tight">তারা কী বলছেন</h2>
-        </div>
+    <section id="testimonials" class="pintar-home-section"
+        x-data="{
+            index: 0,
+            perView: window.innerWidth <= 980 ? 1 : 3,
+            cards: [],
+            init() {
+                this.cards = Array.from(this.$refs.track.children);
+                this.buildDots();
+                window.addEventListener('resize', () => {
+                    this.perView = window.innerWidth <= 980 ? 1 : 3;
+                    this.index = 0;
+                    this.buildDots();
+                    this.update();
+                });
+            },
+            buildDots() {
+                const pages = Math.max(1, this.cards.length - this.perView + 1);
+                this.$refs.dots.innerHTML = '';
+                for (let i = 0; i < pages; i++) {
+                    const d = document.createElement('button');
+                    d.type = 'button';
+                    d.className = 'pintar-home-dot-btn' + (i === 0 ? ' active' : '');
+                    d.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+                    d.addEventListener('click', () => { this.index = i; this.update(); });
+                    this.$refs.dots.appendChild(d);
+                }
+            },
+            update() {
+                if (! this.cards.length) return;
+                const cardWidth = this.cards[0].getBoundingClientRect().width + 26;
+                this.$refs.track.style.transform = `translateX(-${this.index * cardWidth}px)`;
+                Array.from(this.$refs.dots.children).forEach((d, i) => d.classList.toggle('active', i === this.index));
+            },
+            next() {
+                const maxIndex = this.cards.length - this.perView;
+                this.index = Math.min(this.index + 1, maxIndex);
+                this.update();
+            },
+            prev() {
+                this.index = Math.max(this.index - 1, 0);
+                this.update();
+            }
+        }"
+        x-init="init()"
+    >
+        <div class="pintar-home-container">
+            <div class="pintar-home-testi-head">
+                <div class="pintar-home-section-head pintar-home-reveal" style="margin-bottom:0;">
+                    <div class="pintar-home-eyebrow">Testimonials</div>
+                    <h2>"Here our customers say"</h2>
+                </div>
+                <div class="pintar-home-testi-controls pintar-home-reveal">
+                    <button type="button" class="pintar-home-testi-nav-btn" @click="prev()" aria-label="Previous">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3L5 8l5 5" stroke="#0E1E1D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <button type="button" class="pintar-home-testi-nav-btn" @click="next()" aria-label="Next">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3l5 5-5 5" stroke="#0E1E1D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
+            </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-            @forelse($testimonials as $tm)
-                <article class="glass-card-hover p-6 h-full flex flex-col">
-                    <div class="text-brand-gold text-xs mb-4 flex gap-0.5" aria-label="{{ $tm->rating }} star rating">
-                        @for($i = 0; $i < min(5, (int) $tm->rating); $i++)
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                        @endfor
-                    </div>
-                    <blockquote class="text-sm leading-relaxed text-neu-muted mb-5 flex-1 line-clamp-5">"{{ $tm->comment }}"</blockquote>
-                    <div class="flex items-center gap-3 pt-2 glass-divider">
-                        <div class="w-10 h-10 rounded-full glass-icon-accent flex items-center justify-center font-extrabold text-sm shrink-0">
-                            {{ mb_substr($tm->user?->name ?? 'S', 0, 1) }}
-                        </div>
-                        <div class="min-w-0">
-                            <div class="text-sm font-bold text-brand-navy truncate">{{ $tm->user?->name ?? 'শিক্ষার্থী' }}</div>
-                            <div class="text-xs text-neu-muted truncate">{{ $tm->user?->designation ?? 'SecondShiftBD শিক্ষার্থী' }}</div>
-                        </div>
-                    </div>
-                </article>
-            @empty
-                @foreach([
-                    ['quote' => 'SecondShiftBD-তে ভর্তি হয়ে আমার ক্যারিয়ারে বড় পরিবর্তন এসেছে। ইন্সট্রাক্টররা অসাধারণ সাপোর্ট দিয়েছেন।', 'name' => 'রাফসান আহমেদ', 'role' => 'HSC Student'],
-                    ['quote' => 'লাইভ ক্লাসের ইন্টারঅ্যাকটিভ পরিবেশ আমাকে দ্রুত স্কিল ডেভেলপ করতে সাহায্য করেছে।', 'name' => 'নুসরাত জাহান', 'role' => 'Software Engineer'],
-                    ['quote' => 'যেকোনো জায়গা থেকে শেখার সুবিধা আর প্র্যাক্টিকাল প্রজেক্টগুলো সত্যিই কাজে দিয়েছে।', 'name' => 'তানভীর হাসান', 'role' => 'Freelancer'],
-                    ['quote' => 'সাশ্রয়ী মূল্যে মানসম্পন্ন শিক্ষা — SecondShiftBD সত্যিই আলাদা।', 'name' => 'সাদিয়া ইসলাম', 'role' => 'Digital Marketer'],
-                ] as $tm)
-                    <article class="glass-card p-6 h-full flex flex-col">
-                        <div class="text-brand-gold text-xs mb-4 flex gap-0.5">
-                            @for($i = 0; $i < 5; $i++)
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            @endfor
-                        </div>
-                        <blockquote class="text-sm leading-relaxed text-neu-muted mb-5 flex-1">"{{ $tm['quote'] }}"</blockquote>
-                        <div class="flex items-center gap-3 pt-2 glass-divider">
-                            <div class="w-10 h-10 rounded-full glass-icon-accent flex items-center justify-center font-extrabold text-sm shrink-0">
-                                {{ mb_substr($tm['name'], 0, 1) }}
-                            </div>
-                            <div>
-                                <div class="text-sm font-bold text-brand-navy">{{ $tm['name'] }}</div>
-                                <div class="text-xs text-neu-muted">{{ $tm['role'] }}</div>
+            <div class="pintar-home-testi-viewport pintar-home-reveal">
+                <div class="pintar-home-testi-track" x-ref="track">
+                    @forelse($testimonials as $tmIndex => $tm)
+                        @php
+                            $avatarColors = ['#1C726F', '#FF7A2E', '#E06524', '#14615F', '#FFD177', '#1D7270'];
+                            $bg = $avatarColors[$tmIndex % count($avatarColors)];
+                            $textColor = $bg === '#FFD177' ? '#0E1E1D' : '#fff';
+                        @endphp
+                        <div class="pintar-home-testi-card">
+                            <div class="pintar-home-testi-stars">★★★★★</div>
+                            <p>"{{ $tm->comment }}"</p>
+                            <div class="pintar-home-testi-person">
+                                <span class="pintar-home-testi-avatar" style="background:{{ $bg }};color:{{ $textColor }}">{{ $this->initials($tm->user?->name) }}</span>
+                                <div>
+                                    <strong>{{ $tm->user?->name ?? 'Student' }}</strong>
+                                    <small>{{ $tm->user?->designation ?? 'SecondShiftBD Learner' }}</small>
+                                </div>
                             </div>
                         </div>
-                    </article>
-                @endforeach
-            @endforelse
-        </div>
-    </section>
-
-    {{-- CTA --}}
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-        <div class="glass-cta px-6 sm:px-12 py-14 sm:py-16 text-center relative z-10">
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-3 tracking-tight">আজই আপনার শেখা শুরু করুন</h2>
-            <p class="text-sm sm:text-base text-neu-muted mb-8 max-w-xl mx-auto leading-relaxed">হাজারো শিক্ষার্থীর সাথে যুক্ত হয়ে গড়ুন উজ্জ্বল ভবিষ্যৎ</p>
-            @guest
-                <button
-                    type="button"
-                    @click="$dispatch('open-auth-drawer')"
-                    class="md-ripple inline-flex items-center justify-center min-h-[48px] glass-btn px-8 sm:px-10 py-3.5 rounded-2xl font-extrabold text-sm transition-all duration-200 ease-md-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40 focus-visible:ring-offset-2 focus-visible:ring-offset-neu-base"
-                >
-                    ফ্রি অ্যাকাউন্ট খুলুন
-                </button>
-            @else
-                <a
-                    href="{{ route('courses.list') }}"
-                    class="md-ripple inline-flex items-center justify-center min-h-[48px] glass-btn px-8 sm:px-10 py-3.5 rounded-2xl font-extrabold text-sm transition-all duration-200 ease-md-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40 focus-visible:ring-offset-2 focus-visible:ring-offset-neu-base"
-                >
-                    কোর্স ব্রাউজ করুন
-                </a>
-            @endguest
+                    @empty
+                        @foreach($fallbackTestimonials as $tm)
+                            <div class="pintar-home-testi-card">
+                                <div class="pintar-home-testi-stars">★★★★★</div>
+                                <p>"{{ $tm['quote'] }}"</p>
+                                <div class="pintar-home-testi-person">
+                                    <span class="pintar-home-testi-avatar" style="background:{{ $tm['bg'] }};color:{{ $tm['text'] ?? '#fff' }}">{{ $tm['initials'] }}</span>
+                                    <div>
+                                        <strong>{{ $tm['name'] }}</strong>
+                                        <small>{{ $tm['role'] }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @endforelse
+                </div>
+            </div>
+            <div class="pintar-home-dots" x-ref="dots"></div>
         </div>
     </section>
 </div>
