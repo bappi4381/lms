@@ -25,7 +25,7 @@
             })();
         </script>
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased bg-neu-base text-neu-text">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 glass-page">
             <div>
                 <a href="/">

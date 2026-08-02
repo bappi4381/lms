@@ -35,15 +35,37 @@ This guide defines how we build **scalable, responsive, reactive, accessible, an
 
 ## 3. Design System
 
+### 3.0 Design Philosophy: Minimal + Material Hybrid (Pintar Theme)
+
+LMS users focus on content (courses, videos, quizzes). The UI uses **minimalism as the base** and **Material Design 3 selectively** for structure and feedback. Public marketing pages follow the **Pintar** teal + orange palette.
+
+| Layer | Minimal (base) | Material (selective) |
+|-------|----------------|----------------------|
+| Canvas | Clean white `#FFFFFF` / dark teal-gray in dark mode | — |
+| Cards | White surfaces, pastel course thumb accents | `shadow-elevation-1`, hover `elevation-3` |
+| Hierarchy | Typography scale, muted meta text | Active: `bg-brand-blue-light` + border accent |
+| Interaction | One primary CTA per section | `md-ripple`, `transition-shadow duration-200 ease-md-standard` |
+| Grids | Mobile-first 1 column | Bento layout on homepage + dashboard only |
+
+**Public palette (Pintar):** Deep teal (`brand-teal` `#105151`) for headings, nav CTAs, and dark section bands; vibrant orange (`brand-orange` `#F07630`) for primary CTAs and prices; gold (`brand-gold` `#F4C56D`) for stars and review badges.
+
+**Dark mode:** Desaturated teal/orange variants — functional, not screenshot-accurate.
+
+**Stable class API:** Legacy `glass-*` and `neu-*` class names in Blade are remapped in `resources/css/app.css` to MD3 surfaces — do not introduce parallel styling systems.
+
 ### 3.1 Brand Tokens (use these — never hardcode hex in templates)
 
 Defined in `tailwind.config.js`:
 
 | Token | Usage |
 |-------|--------|
-| `brand-navy` / `brand-navy-light` | Primary brand, headers, CTAs |
-| `brand-blue` / `brand-blue-light` | Accents, links, active states |
-| `brand-gold` | Highlights, badges, promotions |
+| `brand-teal` / `brand-navy` | Primary brand, headers, dark sections, CTAs |
+| `brand-teal-mid` / `brand-teal-deep` | Section bands (courses, testimonials) |
+| `brand-orange` / `brand-orange-bright` | Primary CTAs, prices, pricing section bg |
+| `brand-orange-soft` | Eyebrow labels (uppercase) |
+| `brand-blue` / `brand-blue-light` | Links, active states (mapped to teal) |
+| `brand-gold` | Stars, review badges, featured pricing badge |
+| `pintar-grey/mustard/pink/blue` | Course card thumb backgrounds |
 | `ostad-*` | Legacy alias — prefer `brand-*` in new code |
 
 **Elevation:** Use `shadow-elevation-1` … `shadow-elevation-5` for depth (Material Design 3).
