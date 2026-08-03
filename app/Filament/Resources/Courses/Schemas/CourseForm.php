@@ -54,7 +54,7 @@ class CourseForm
 
                             Select::make('category_id')
                                 ->label('Category (ক্যাটাগরি)')
-                                ->options(Category::where('is_active', true)->orderBy('order')->pluck('name', 'id'))
+                                ->options(fn () => Category::where('is_active', true)->orderBy('order')->get()->mapWithKeys(fn ($cat) => [$cat->id => "{$cat->name_en} / {$cat->name_bn}"]))
                                 ->searchable()
                                 ->preload()
                                 ->placeholder('ক্যাটাগরি নির্বাচন করুন'),

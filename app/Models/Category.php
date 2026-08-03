@@ -187,4 +187,55 @@ class Category extends Model
             get: fn () => $this->slugFor(app()->getLocale()),
         );
     }
+
+    /**
+     * Get IDs of this category and all its descendants (children & grandchildren).
+     */
+    public function allCategoryIds(): array
+    {
+        $ids = [$this->id];
+        $children = $this->relationLoaded('children') ? $this->children : $this->children()->get();
+        foreach ($children as $child) {
+            $ids[] = $child->id;
+            $grandChildren = $child->relationLoaded('children') ? $child->children : $child->children()->get();
+            foreach ($grandChildren as $grandChild) {
+                $ids[] = $grandChild->id;
+            }
+        }
+
+        return array_unique($ids);
+    }
+
+    /**
+     * Total published courses count including all sub-categories under this main category.
+     */
+    public function totalCoursesCount(): int
+    {
+        return Course::whereIn('category_id', $this->allCategoryIds())
+            ->where('is_published', true)
+            ->count();
+    }
+
+    /**
+     * Total published courses count for a main navbar section (academic, skills, test_prep, professional, etc.)
+     * including all top-level categories under that main_type and all their sub-categories.
+     */
+    public static function totalCoursesCountForMainType(string $mainType): int
+    {
+        $topCategories = static::where('main_type', $mainType)->get();
+        if ($topCategories->isEmpty()) {
+            return 0;
+        }
+
+        $allIds = [];
+        foreach ($topCategories as $cat) {
+            foreach ($cat->allCategoryIds() as $id) {
+                $allIds[] = $id;
+            }
+        }
+
+        return Course::whereIn('category_id', array_unique($allIds))
+            ->where('is_published', true)
+            ->count();
+    }
 }

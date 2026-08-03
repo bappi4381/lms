@@ -1,49 +1,61 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-bold text-2xl text-neu-heading leading-tight">📦 সাবস্ক্রিপশন প্ল্যান</h2>
-    </x-slot>
+    <div class="min-h-screen bg-[var(--surface-canvas)] py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row gap-6 items-start">
+                <x-user-sidebar />
 
-    <div class="py-10 bg-neu-base">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <p class="text-neu-text">একটি সাবস্ক্রিপশন প্ল্যান কিনে আমাদের <strong class="text-neu-heading">সবগুলো কোর্সে</strong> সীমাহীন এক্সেস পান।</p>
-
-            @if(session('status'))
-                <div class="neu-inset-sm rounded-md-md p-3 text-neu-text text-sm font-medium">{{ session('status') }}</div>
-            @endif
-            @if(session('error'))
-                <div class="neu-inset rounded-md-md p-3 text-neu-heading text-sm font-medium">{{ session('error') }}</div>
-            @endif
-
-            @if($activeSubscription)
-                <div class="neu-inset-sm rounded-md-lg p-5 text-neu-text">
-                    আপনার <strong class="text-neu-heading">{{ $activeSubscription->plan->name }}</strong> সাবস্ক্রিপশন সক্রিয় আছে,
-                    মেয়াদ শেষ হবে {{ $activeSubscription->ends_at->format('d M, Y') }} তারিখে।
-                </div>
-            @endif
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                @foreach($plans as $plan)
-                    <div class="neu-card p-8 flex flex-col">
-                        <h3 class="text-xl font-bold text-neu-heading">{{ $plan->name }}</h3>
-                        <p class="text-neu-muted text-sm mt-2 flex-grow">{{ $plan->description }}</p>
-                        <div class="my-6">
-                            <span class="text-3xl font-extrabold text-neu-heading">৳{{ number_format($plan->price, 0) }}</span>
-                            <span class="text-neu-muted text-sm">/ {{ $plan->interval === 'yearly' ? 'বছর' : 'মাস' }}</span>
-                        </div>
-                        @auth
-                            <form method="POST" action="{{ route('payment.checkout-subscription', $plan) }}">
-                                @csrf
-                                <button type="submit" class="neu-btn-primary md-ripple w-full py-3 font-bold">
-                                    সাবস্ক্রাইব করুন
-                                </button>
-                            </form>
-                        @else
-                            <button @click="$dispatch('open-auth-drawer')" class="neu-btn-primary md-ripple w-full py-3 font-bold">
-                                সাবস্ক্রাইব করুন
-                            </button>
-                        @endauth
+                <div class="flex-1 w-full space-y-5">
+                    <div class="mb-2">
+                        <h1 class="text-lg font-bold text-[var(--brand-navy)]">📦 সাবস্ক্রিপশন প্ল্যান</h1>
+                        <p class="text-sm text-[var(--on-surface-muted)] mt-1">একটি প্ল্যান কিনে <strong class="text-[var(--brand-navy)]">সবগুলো কোর্সে</strong> সীমাহীন এক্সেস পান।</p>
                     </div>
-                @endforeach
+
+                    @if(session('status'))
+                        <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium rounded-xl px-4 py-3">{{ session('status') }}</div>
+                    @endif
+                    @if(session('error'))
+                        <div class="bg-red-50 border border-red-200 text-red-700 text-sm font-medium rounded-xl px-4 py-3">{{ session('error') }}</div>
+                    @endif
+
+                    @if($activeSubscription)
+                        <div class="flex items-center gap-3 bg-[var(--surface-default)] border border-[var(--outline)] rounded-2xl px-5 py-3.5 shadow-elevation-1">
+                            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 animate-pulse"></div>
+                            <p class="text-sm text-[var(--on-surface)]">
+                                আপনার <span class="font-bold text-[var(--brand-navy)]">{{ $activeSubscription->plan->name }}</span> সাবস্ক্রিপশন সক্রিয় আছে।
+                                মেয়াদ শেষ: <span class="font-semibold">{{ $activeSubscription->ends_at->format('d M, Y') }}</span>
+                            </p>
+                        </div>
+                    @endif
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        @foreach($plans as $plan)
+                            <div class="bg-[var(--surface-default)] border border-[var(--outline)] rounded-2xl p-7 flex flex-col shadow-elevation-1 hover:shadow-elevation-2 transition-shadow">
+                                <h3 class="text-lg font-bold text-[var(--brand-navy)]">{{ $plan->name }}</h3>
+                                <p class="text-sm text-[var(--on-surface-muted)] mt-2 flex-grow">{{ $plan->description }}</p>
+                                <div class="my-5">
+                                    <span class="text-3xl font-extrabold text-[var(--brand-navy)]">৳{{ number_format($plan->price, 0) }}</span>
+                                    <span class="text-[var(--on-surface-muted)] text-sm"> / {{ $plan->interval === 'yearly' ? 'বছর' : 'মাস' }}</span>
+                                </div>
+                                @auth
+                                    <form method="POST" action="{{ route('payment.checkout-subscription', $plan) }}">
+                                        @csrf
+                                        <button type="submit"
+                                                class="w-full py-3 font-bold text-sm text-white rounded-xl transition-colors"
+                                                style="background: var(--brand-teal);">
+                                            সাবস্ক্রাইব করুন
+                                        </button>
+                                    </form>
+                                @else
+                                    <button @click="$dispatch('open-auth-drawer')"
+                                            class="w-full py-3 font-bold text-sm text-white rounded-xl transition-colors"
+                                            style="background: var(--brand-teal);">
+                                        সাবস্ক্রাইব করুন
+                                    </button>
+                                @endauth
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
             </div>
         </div>
     </div>

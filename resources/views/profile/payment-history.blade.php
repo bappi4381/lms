@@ -1,68 +1,75 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-bold text-2xl text-neu-heading leading-tight">💳 পেমেন্ট হিস্টোরি</h2>
-    </x-slot>
+    <div class="min-h-screen bg-[var(--surface-canvas)] py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row gap-6 items-start">
+                <x-user-sidebar />
 
-    <div class="py-10 bg-neu-base">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
-            @if (session('status'))
-                <div class="mb-4 neu-inset-sm rounded-md-md p-3 text-neu-text text-sm font-medium">{{ session('status') }}</div>
-            @endif
+                <div class="flex-1 w-full space-y-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h1 class="text-lg font-bold text-[var(--brand-navy)]">💳 পেমেন্ট হিস্টোরি</h1>
+                    </div>
 
-            <div class="neu-card overflow-hidden">
-                <table class="w-full text-sm">
-                    <thead class="neu-inset-sm text-neu-muted text-left">
-                        <tr>
-                            <th class="px-5 py-3 font-semibold text-neu-heading">আইটেম</th>
-                            <th class="px-5 py-3 font-semibold text-neu-heading">পরিমাণ</th>
-                            <th class="px-5 py-3 font-semibold text-neu-heading">স্ট্যাটাস</th>
-                            <th class="px-5 py-3 font-semibold text-neu-heading">তারিখ</th>
-                            <th class="px-5 py-3 font-semibold text-neu-heading"></th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-neu-dark/10">
-                        @forelse($orders as $order)
-                            <tr>
-                                <td class="px-5 py-4 font-medium text-neu-heading">
-                                    {{ $order->type === 'subscription' ? $order->subscriptionPlan?->name : $order->course?->title }}
-                                    <div class="text-xs text-neu-muted font-mono">{{ $order->transaction_id }}</div>
-                                </td>
-                                <td class="px-5 py-4 text-neu-text">৳{{ number_format($order->totalPayable(), 0) }}</td>
-                                <td class="px-5 py-4">
-                                    @php
-                                        $badge = match($order->payment_status) {
-                                            'paid' => 'neu-inset-sm text-neu-heading',
-                                            default => 'neu-pill text-neu-text',
-                                        };
-                                        $label = match($order->payment_status) {
-                                            'paid' => 'পেইড',
-                                            'pending' => 'পেন্ডিং',
-                                            'refund_requested' => 'রিফান্ড রিকোয়েস্ট করা হয়েছে',
-                                            'refunded' => 'রিফান্ড হয়েছে',
-                                            'failed' => 'ব্যর্থ',
-                                            'canceled' => 'বাতিল',
-                                            default => $order->payment_status,
-                                        };
-                                    @endphp
-                                    <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-bold {{ $badge }}">{{ $label }}</span>
-                                </td>
-                                <td class="px-5 py-4 text-neu-muted">{{ $order->created_at->format('d M, Y') }}</td>
-                                <td class="px-5 py-4 text-right">
-                                    @if($order->payment_status === 'paid')
-                                        <form method="POST" action="{{ route('orders.refund-request', $order) }}" onsubmit="return confirm('আপনি কি নিশ্চিত রিফান্ড রিকোয়েস্ট করতে চান?')">
-                                            @csrf
-                                            <button type="submit" class="text-xs text-neu-muted hover:text-neu-heading font-semibold underline-offset-2 hover:underline">রিফান্ড রিকোয়েস্ট</button>
-                                        </form>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-5 py-10 text-center text-neu-muted">কোনো পেমেন্ট রেকর্ড নেই।</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                    @if (session('status'))
+                        <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium rounded-xl px-4 py-3">{{ session('status') }}</div>
+                    @endif
+
+                    <div class="bg-[var(--surface-default)] border border-[var(--outline)] rounded-2xl overflow-hidden shadow-elevation-1">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-[var(--outline)] bg-[var(--surface-muted)]">
+                                    <th class="px-5 py-3.5 font-semibold text-[var(--brand-navy)] text-left">আইটেম</th>
+                                    <th class="px-5 py-3.5 font-semibold text-[var(--brand-navy)] text-left">পরিমাণ</th>
+                                    <th class="px-5 py-3.5 font-semibold text-[var(--brand-navy)] text-left">স্ট্যাটাস</th>
+                                    <th class="px-5 py-3.5 font-semibold text-[var(--brand-navy)] text-left">তারিখ</th>
+                                    <th class="px-5 py-3.5 font-semibold text-[var(--brand-navy)]"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[var(--outline)]">
+                                @forelse($orders as $order)
+                                    <tr class="hover:bg-[var(--surface-hover)] transition-colors">
+                                        <td class="px-5 py-4 font-medium text-[var(--brand-navy)]">
+                                            {{ $order->type === 'subscription' ? $order->subscriptionPlan?->name : $order->course?->title }}
+                                            <div class="text-xs text-[var(--on-surface-muted)] font-mono">{{ $order->transaction_id }}</div>
+                                        </td>
+                                        <td class="px-5 py-4 text-[var(--on-surface)]">৳{{ number_format($order->totalPayable(), 0) }}</td>
+                                        <td class="px-5 py-4">
+                                            @php
+                                                $badgeClass = match($order->payment_status) {
+                                                    'paid' => 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+                                                    'pending' => 'bg-amber-50 text-amber-700 border border-amber-200',
+                                                    default => 'bg-[var(--surface-muted)] text-[var(--on-surface-muted)] border border-[var(--outline)]',
+                                                };
+                                                $label = match($order->payment_status) {
+                                                    'paid' => 'পেইড',
+                                                    'pending' => 'পেন্ডিং',
+                                                    'refund_requested' => 'রিফান্ড রিকোয়েস্ট',
+                                                    'refunded' => 'রিফান্ড হয়েছে',
+                                                    'failed' => 'ব্যর্থ',
+                                                    'canceled' => 'বাতিল',
+                                                    default => $order->payment_status,
+                                                };
+                                            @endphp
+                                            <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-bold {{ $badgeClass }}">{{ $label }}</span>
+                                        </td>
+                                        <td class="px-5 py-4 text-[var(--on-surface-muted)]">{{ $order->created_at->format('d M, Y') }}</td>
+                                        <td class="px-5 py-4 text-right">
+                                            @if($order->payment_status === 'paid')
+                                                <form method="POST" action="{{ route('orders.refund-request', $order) }}" onsubmit="return confirm('রিফান্ড রিকোয়েস্ট করতে চান?')">
+                                                    @csrf
+                                                    <button type="submit" class="text-xs text-[var(--on-surface-muted)] hover:text-[var(--brand-navy)] font-semibold underline-offset-2 hover:underline">রিফান্ড রিকোয়েস্ট</button>
+                                                </form>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="px-5 py-10 text-center text-[var(--on-surface-muted)]">কোনো পেমেন্ট রেকর্ড নেই।</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

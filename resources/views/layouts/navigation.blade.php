@@ -76,7 +76,7 @@
                             class="absolute left-0 top-full pt-1 w-64 z-[60]"
                             style="display: none;"
                         >
-                            <div class="glass-dropdown py-1.5 max-h-[70vh] overflow-y-auto">
+                            <div class="glass-dropdown py-1.5 max-h-[70vh] overflow-y-auto overflow-x-hidden">
                                 @forelse($mainCategories as $cat)
                                     <a
                                         href="{{ $categoryUrl($mainType, $pick($cat, 'slug')) }}"
@@ -172,29 +172,25 @@
                         </x-slot>
                     </x-dropdown>
 
-                    <x-dropdown align="right" width="48">
-                        <x-slot name="trigger">
-                            <button class="inline-flex items-center gap-2 px-3 py-2 text-sm font-semibold text-gray-700 hover:text-brand-navy rounded-xl glass-nav-hover">
-                                <span class="max-w-[8rem] truncate">{{ Auth::user()->name }}</span>
-                                <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-                            </button>
-                        </x-slot>
-                        <x-slot name="content">
-                            <x-dropdown-link :href="route('dashboard')">{{ __('nav.dashboard') }}</x-dropdown-link>
-                            <x-dropdown-link :href="route('profile.edit')">{{ __('nav.profile') }}</x-dropdown-link>
-                            <x-dropdown-link :href="route('subscriptions.index')">{{ __('nav.subscription_plans') }}</x-dropdown-link>
-                            <x-dropdown-link :href="route('profile.certificates')">{{ __('nav.certificates') }}</x-dropdown-link>
-                            <x-dropdown-link :href="route('profile.payment-history')">{{ __('nav.payment_history') }}</x-dropdown-link>
-                            <x-dropdown-link :href="route('devices.index')">{{ __('nav.my_devices') }}</x-dropdown-link>
-                            <x-dropdown-link :href="route('support.index')">{{ __('nav.support') }}</x-dropdown-link>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
-                                    {{ __('nav.log_out') }}
-                                </x-dropdown-link>
-                            </form>
-                        </x-slot>
-                    </x-dropdown>
+                    @php
+                        $authUser = Auth::user();
+                        $avatarUrl = null;
+                        if ($authUser->profile_photo_url) {
+                            $avatarUrl = \Illuminate\Support\Str::startsWith($authUser->profile_photo_url, ['http://', 'https://'])
+                                ? $authUser->profile_photo_url
+                                : asset('storage/' . $authUser->profile_photo_url);
+                        }
+                        $firstLetter = mb_strtoupper(mb_substr($authUser->name ?? 'U', 0, 1));
+                    @endphp
+                    <a href="{{ route('dashboard') }}"
+                       class="inline-flex items-center p-1 rounded-full glass-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue"
+                       aria-label="{{ $authUser->name }}">
+                        @if($avatarUrl)
+                            <img src="{{ $avatarUrl }}" alt="{{ $authUser->name }}" class="w-8 h-8 rounded-full object-cover shrink-0 border border-gray-200" />
+                        @else
+                            <div class="w-8 h-8 rounded-full bg-brand-teal text-white flex items-center justify-center text-sm font-bold shrink-0 uppercase shadow-xs">{{ $firstLetter }}</div>
+                        @endif
+                    </a>
                 @else
                     <button
                         type="button"

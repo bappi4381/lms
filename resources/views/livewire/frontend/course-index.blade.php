@@ -25,8 +25,8 @@ new class extends Component
     {
         $this->categories = Category::whereNull('parent_id')
             ->where('is_active', true)
+            ->with(['children.children'])
             ->orderBy('order')
-            ->withCount('courses')
             ->get();
 
         $this->featuredCourses = Course::where('is_published', true)
@@ -313,50 +313,130 @@ new class extends Component
     </section>
 
     {{-- Categories --}}
-    <section class="pintar-home-section">
-        <div class="pintar-home-container">
-            <div class="pintar-home-cat-top">
-                <div class="pintar-home-reveal">
-                    <div class="pintar-home-eyebrow">Course categories</div>
-                    <h2>Course that change your life!</h2>
-                </div>
-                <div class="pintar-home-reveal">
-                    <p style="color:var(--on-surface-muted);line-height:1.7;">Explore academic, skill, test prep, and professional tracks — start from the category that matches your goals.</p>
-                    <a href="{{ route('courses.list') }}" class="pintar-home-btn-ghost" style="margin-top:18px;">
-                        Learn more
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="#E06524" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </a>
-                </div>
+    @php
+        $isBn = app()->getLocale() === 'bn';
+
+        $sections = [
+            [
+                'key' => 'academic',
+                'name_bn' => 'একাডেমিক',
+                'name_en' => 'Academic',
+                'bg' => 'var(--pastel-sky, #e8f4f8)',
+                'color' => 'var(--brand-teal, #1d7270)',
+                'svg' => '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>',
+                'fallback_bn' => '১২০+ কোর্স',
+                'fallback_en' => '120+ Courses',
+            ],
+            [
+                'key' => 'skills',
+                'name_bn' => 'স্কিলস',
+                'name_en' => 'Skills',
+                'bg' => 'var(--pastel-peach, #fdf0e9)',
+                'color' => 'var(--brand-orange-soft, #e06524)',
+                'svg' => '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polyline points="7 8 10 11 7 14"/><line x1="13" y1="14" x2="17" y2="14"/></svg>',
+                'fallback_bn' => '৮০+ কোর্স',
+                'fallback_en' => '80+ Courses',
+            ],
+            [
+                'key' => 'test_prep',
+                'name_bn' => 'টেস্ট প্রস্তুতি',
+                'name_en' => 'Test Prep',
+                'bg' => 'var(--pastel-mint, #e0f0ed)',
+                'color' => 'var(--brand-teal, #1d7270)',
+                'svg' => '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>',
+                'fallback_bn' => '৩৫+ কোর্স',
+                'fallback_en' => '35+ Courses',
+            ],
+            [
+                'key' => 'professional',
+                'name_bn' => 'CA/মেরিটাইম',
+                'name_en' => 'CA / Professional',
+                'bg' => 'var(--pastel-rose, #fce8ec)',
+                'color' => 'var(--brand-orange-soft, #e06524)',
+                'svg' => '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',
+                'fallback_bn' => '৪৫+ কোর্স',
+                'fallback_en' => '45+ Courses',
+            ],
+            [
+                'key' => 'ebooks',
+                'name_bn' => 'ই-বুকস',
+                'name_en' => 'E-Books',
+                'bg' => 'var(--pastel-sky, #e8f4f8)',
+                'color' => 'var(--brand-teal, #1d7270)',
+                'svg' => '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+                'fallback_bn' => '৩০০+ বই',
+                'fallback_en' => '300+ Books',
+            ],
+            [
+                'key' => 'free',
+                'name_bn' => 'ফ্রি রিসোর্স',
+                'name_en' => 'Free Resources',
+                'bg' => 'var(--pastel-peach, #fdf0e9)',
+                'color' => 'var(--brand-orange-soft, #e06524)',
+                'svg' => '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
+                'fallback_bn' => '৫০+ রিসোর্স',
+                'fallback_en' => '500+ Resources',
+            ],
+        ];
+
+        $displayCards = [];
+
+        foreach ($sections as $sec) {
+            $sumCount = App\Models\Category::totalCoursesCountForMainType($sec['key']);
+            
+            if ($sumCount > 0) {
+                $subText = $isBn ? ($this->bn($sumCount) . '+ কোর্স') : ($sumCount . '+ Courses');
+            } else {
+                $subText = $isBn ? $sec['fallback_bn'] : $sec['fallback_en'];
+            }
+
+            $firstCat = App\Models\Category::where('main_type', $sec['key'])->whereNull('parent_id')->first();
+            $url = $firstCat 
+                ? route('courses.list', ['category' => $firstCat->id])
+                : route('courses.list');
+
+            $displayCards[] = [
+                'title' => $isBn ? $sec['name_bn'] : $sec['name_en'],
+                'sub' => $subText,
+                'url' => $url,
+                'bg' => $sec['bg'],
+                'color' => $sec['color'],
+                'icon' => $sec['svg'],
+            ];
+        }
+    @endphp
+
+    <section class="py-12 md:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <span class="font-bold text-sm sm:text-base tracking-wide block mb-1" style="color: var(--brand-orange-soft, #e06524);">
+                    {{ $isBn ? 'ক্যাটাগরি' : 'Category' }}
+                </span>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight" style="color: var(--brand-navy, #0e1e1d);">
+                    {{ $isBn ? 'আপনার যা প্রয়োজন, সবই এখানে' : 'Everything You Need Is Right Here' }}
+                </h2>
             </div>
 
-            <div class="pintar-home-cat-grid">
-                @forelse($categories->take(4) as $index => $category)
-                    <a href="{{ route('courses.list', ['category' => $category->id]) }}" @class(['pintar-home-cat-card', 'big' => $index === 0, 'pintar-home-reveal'])>
-                        <span class="pintar-home-cat-icon" style="background:{{ $categoryIconBgs[$index] ?? $categoryIconBgs[0] }};color:{{ $categoryIconColors[$index] ?? $categoryIconColors[0] }}">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">{!! $categoryIcons[$index] ?? $categoryIcons[0] !!}</svg>
-                        </span>
-                        <div>
-                            <h3>{{ $category->name }}</h3>
-                            <p>{{ $this->bn(max($category->courses_count, 1)) }}+ courses available.</p>
-                            <span class="pintar-home-btn-ghost" style="margin-top:14px;color:{{ $index === 0 ? '#FFD177' : 'var(--brand-orange-soft)' }};">
-                                Learn more
-                                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </span>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
+                @foreach($displayCards as $card)
+                    <a href="{{ $card['url'] }}" 
+                       class="group bg-white rounded-2xl p-5 border border-black/5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 shadow-sm"
+                             style="background-color: {{ $card['bg'] }}; color: {{ $card['color'] }};">
+                            @if(str_starts_with(trim($card['icon']), '<svg'))
+                                {!! $card['icon'] !!}
+                            @else
+                                <span class="text-2xl">{{ $card['icon'] }}</span>
+                            @endif
                         </div>
+                        <h3 class="font-bold text-sm sm:text-base transition-colors mb-1 group-hover:opacity-80" style="color: var(--brand-navy, #0e1e1d);">
+                            {{ $card['title'] }}
+                        </h3>
+                        <p class="text-xs sm:text-sm font-medium" style="color: var(--on-surface-muted, #6e767d);">
+                            {{ $card['sub'] }}
+                        </p>
                     </a>
-                @empty
-                    @foreach(['Tech and Web Development', 'Business & Leadership', 'Languages', 'Science'] as $index => $name)
-                        <div @class(['pintar-home-cat-card', 'big' => $index === 0, 'pintar-home-reveal'])>
-                            <span class="pintar-home-cat-icon" style="background:{{ $categoryIconBgs[$index] }};color:{{ $categoryIconColors[$index] }}">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">{!! $categoryIcons[$index] !!}</svg>
-                            </span>
-                            <div>
-                                <h3>{{ $name }}</h3>
-                                <p>Explore courses in this category.</p>
-                            </div>
-                        </div>
-                    @endforeach
-                @endforelse
+                @endforeach
             </div>
         </div>
     </section>

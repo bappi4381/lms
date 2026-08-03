@@ -36,11 +36,15 @@ Volt::route('/{locale}/{mainType}/{category}/{subcategory?}', 'frontend.courses'
     ->name('categories.browse');
 
 Route::get('/dashboard', function () {
-    $enrollments = auth()->user()->enrollments()
+    $user = auth()->user();
+    $enrollments = $user->enrollments()
         ->with(['course.modules.lessons'])
         ->latest()
         ->get();
-    return view('dashboard', compact('enrollments'));
+    $certificatesCount = $user->certificates()->count();
+    $activeSubscription = $user->activeSubscription();
+    $paidEnrollmentsCount = $enrollments->where('payment_status', 'paid')->count();
+    return view('dashboard', compact('enrollments', 'certificatesCount', 'activeSubscription', 'paidEnrollmentsCount'));
 })->middleware(['auth', 'verified', 'device.limit'])->name('dashboard');
 
 // ── OAuth (Google / Facebook) — must work for guests ────────────────────

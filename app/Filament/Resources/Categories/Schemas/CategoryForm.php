@@ -7,6 +7,9 @@ use Closure;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Placeholder;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 
@@ -21,69 +24,81 @@ class CategoryForm
     {
         return $schema
             ->components([
-                Select::make('parent_id')
-                    ->label('Parent Category (রাখলে এটি সাব/সাব-সাব-ক্যাটাগরি হবে)')
-                    ->options(fn ($record) => self::parentOptions($record))
-                    ->searchable()
-                    ->preload()
-                    ->live()
-                    ->placeholder('— কোনো Parent নেই (Top-level Category) —')
-                    ->rule(fn ($record) => self::validParentRule($record))
-                    ->helperText('সর্বোচ্চ ৩ লেভেল পর্যন্ত নেস্টিং সম্ভব: ক্যাটাগরি → সাব-ক্যাটাগরি → সাব-সাব-ক্যাটাগরি।'),
+                Section::make('Basic Info')
+                    ->description('Primary details')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('name_en')
+                                    ->label('Category Name (English)')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug_en', Str::slug((string) $state))),
+                                Placeholder::make('slug_en_preview')
+                                    ->label('Slug (English)')
+                                    ->content(fn (callable $get) => Str::slug($get('name_en'))),
 
-                Select::make('main_type')
-                    ->label('Main Navbar Section')
-                    ->options([
-                        'academic' => 'Academic (একাডেমিক)',
-                        'skills' => 'Skills (স্কিলস)',
-                        'test_prep' => 'Test Preparation (টেস্ট প্রস্তুতি)',
-                        'professional' => 'Professional (প্রফেশনাল)',
-                    ])
-                    ->native(false)
-                    ->visible(fn ($get) => blank($get('parent_id')))
-                    ->required(fn ($get) => blank($get('parent_id')))
-                    ->dehydrateStateUsing(fn ($state, $get) => blank($get('parent_id')) ? $state : null)
-                    ->helperText('শুধু Top-level Category-এর জন্য — সাব-ক্যাটাগরি এটি তার সবচেয়ে উপরের Parent থেকে ইনহেরিট করে।'),
+                                TextInput::make('name_bn')
+                                    ->label('Category Name (বাংলা)')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug_bn', Str::slug((string) $state))),
+                                Placeholder::make('slug_bn_preview')
+                                    ->label('Slug (বাংলা)')
+                                    ->content(fn (callable $get) => Str::slug($get('name_bn'))),
+                            ]),
+                    ]),
 
-                TextInput::make('name_en')
-                    ->label('Category Name (English)')
-                    ->required()
-                    ->maxLength(255)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug_en', Str::slug((string) $state))),
+                Section::make('Hierarchy')
+                    ->schema([
+                        Select::make('parent_id')
+                            ->label('Parent Category (রাখলে এটি সাব/সাব-সাব-ক্যাটাগরি হবে)')
+                            ->options(fn ($record) => self::parentOptions($record))
+                            ->searchable()
+                            ->preload()
+                            ->live()
+                            ->placeholder('— কোনো Parent নেই (Top-level Category) —')
+                            ->rule(fn ($record) => self::validParentRule($record))
+                            ->helperText('সর্বোচ্চ ৩ লেভেল পর্যন্ত নেস্টিং সম্ভব: ক্যাটাগরি → সাব-ক্যাটাগরি → সাব-সাব-ক্যাটাগরি।'),
 
-                TextInput::make('slug_en')
-                    ->label('Slug (English)')
-                    ->required()
-                    ->maxLength(255)
-                    ->unique(ignoreRecord: true),
+                        Select::make('main_type')
+                            ->label('Main Navbar Section')
+                            ->options([
+                                'academic' => 'Academic (একাডেমিক)',
+                                'skills' => 'Skills (স্কিলস)',
+                                'test_prep' => 'Test Preparation (টেস্ট প্রস্তুতি)',
+                                'professional' => 'Professional (প্রফেশনাল)',
+                            ])
+                            ->native(false)
+                            ->visible(fn ($get) => blank($get('parent_id')))
+                            ->required(fn ($get) => blank($get('parent_id')))
+                            ->dehydrateStateUsing(fn ($state, $get) => blank($get('parent_id')) ? $state : null)
+                            ->helperText('শুধু Top-level Category-এর জন্য — সাব-ক্যাটাগরি এটি তার সবচেয়ে উপরের Parent থেকে ইনহেরিট করে।'),
+                    ]),
 
-                TextInput::make('name_bn')
-                    ->label('Category Name (বাংলা)')
-                    ->required()
-                    ->maxLength(255)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug_bn', Str::slug((string) $state))),
+                Section::make('Additional')
+                    ->schema([
+                        Select::make('icon')
+                            ->label('Icon')
+                            ->options([
+                                '💻' => '💻 (Computer)',
+                                '🎓' => '🎓 (Graduation)',
+                                '📚' => '📚 (Books)',
+                            ])
+                            ->searchable()
+                            ->placeholder('e.g. 💻 or fa-code'),
 
-                TextInput::make('slug_bn')
-                    ->label('Slug (বাংলা)')
-                    ->required()
-                    ->maxLength(255)
-                    ->unique(ignoreRecord: true),
+                        TextInput::make('order')
+                            ->label('Display Order')
+                            ->numeric()
+                            ->default(0),
 
-                TextInput::make('icon')
-                    ->label('Icon (emoji or CSS class)')
-                    ->placeholder('e.g. 💻 or fa-code')
-                    ->maxLength(100),
-
-                TextInput::make('order')
-                    ->label('Display Order')
-                    ->numeric()
-                    ->default(0),
-
-                Toggle::make('is_active')
-                    ->label('Active')
-                    ->default(true),
+                        Toggle::make('is_active')
+                            ->label('Active')
+                            ->default(true),
+                    ]),
             ]);
     }
 

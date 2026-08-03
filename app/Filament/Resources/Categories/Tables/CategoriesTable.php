@@ -8,6 +8,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
 
 class CategoriesTable
@@ -30,9 +31,15 @@ class CategoriesTable
     {
         return $table
             ->columns([
-                TextColumn::make('order')
+                TextInputColumn::make('order')
                     ->label('#')
+                    ->rules(['integer'])
                     ->sortable()
+                    ->width(50),
+
+                TextColumn::make('depth_level')
+                    ->label('Depth')
+                    ->state(fn (Category $record) => $record->depth())
                     ->width(50),
 
                 TextColumn::make('icon')
