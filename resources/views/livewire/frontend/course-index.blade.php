@@ -120,6 +120,8 @@ new class extends Component
 ?>
 
 @php
+    $cms = \App\Models\SiteSetting::getSettings();
+    $isBn = app()->getLocale() === 'bn';
     $avgRatingDisplay = number_format($satisfactionRate / 20, 1);
     $courseCount = max($stats['courses'], 150);
     $studentCount = max($stats['students'], 200000);
@@ -132,11 +134,20 @@ new class extends Component
         'Premium resources, toolkits & downloadable materials',
         'Unlimited access for the full subscription duration',
     ];
-    $featureCards = [
-        ['bg' => 'rgba(255,122,46,.12)', 'stroke' => '#FF7A2E', 'title' => 'Interactive Learning', 'desc' => 'Video, quizzes, and assignments with hands-on practice.'],
-        ['bg' => 'rgba(28,114,111,.12)', 'stroke' => '#1C726F', 'title' => 'Expert Instructors', 'desc' => 'Industry-experienced mentors guide you every step.'],
-        ['bg' => 'rgba(255,209,119,.3)', 'stroke' => '#E06524', 'title' => 'Flexible Schedules', 'desc' => 'Learn at your own pace — anytime, on any device.'],
-        ['bg' => 'rgba(14,97,95,.12)', 'stroke' => '#14615F', 'title' => 'Affordable Pricing', 'desc' => 'Flexible pricing and subscription options for everyone.'],
+    // Feature cards: from CMS if available, fallback to hardcoded
+    $defaultStrokeColors = ['#FF7A2E', '#1C726F', '#E06524', '#14615F'];
+    $defaultBgColors = ['rgba(255,122,46,.12)', 'rgba(28,114,111,.12)', 'rgba(255,209,119,.3)', 'rgba(14,97,95,.12)'];
+    $rawWhyusCards = $cms->whyus_cards ?? [];
+    $featureCards = !empty($rawWhyusCards) ? array_map(fn($c, $i) => [
+        'bg'     => $defaultBgColors[$i % 4],
+        'stroke' => $defaultStrokeColors[$i % 4],
+        'title'  => $isBn ? ($c['title_bn'] ?? $c['title_en'] ?? '') : ($c['title_en'] ?? $c['title_bn'] ?? ''),
+        'desc'   => $isBn ? ($c['desc_bn']  ?? $c['desc_en']  ?? '') : ($c['desc_en']  ?? $c['desc_bn']  ?? ''),
+    ], $rawWhyusCards, array_keys($rawWhyusCards)) : [
+        ['bg' => 'rgba(255,122,46,.12)', 'stroke' => '#FF7A2E', 'title' => $isBn ? 'ইন্টারেক্টিভ শিক্ষা'   : 'Interactive Learning', 'desc' => $isBn ? 'ভিডিও, কুইজ ও অ্যাসাইনমেন্টে হাতে-কলমে অনুশীলন।' : 'Video, quizzes, and assignments with hands-on practice.'],
+        ['bg' => 'rgba(28,114,111,.12)',  'stroke' => '#1C726F', 'title' => $isBn ? 'বিশেষজ্ঞ শিক্ষক'       : 'Expert Instructors',   'desc' => $isBn ? 'শিল্পে অভিজ্ঞ মেন্টররা প্রতিটি ধাপে গাইড করেন।' : 'Industry-experienced mentors guide you every step.'],
+        ['bg' => 'rgba(255,209,119,.3)',  'stroke' => '#E06524', 'title' => $isBn ? 'নমনীয় সময়সূচি'        : 'Flexible Schedules',   'desc' => $isBn ? 'নিজের গতিতে শিখুন — যেকোনো সময়, যেকোনো ডিভাইসে।' : 'Learn at your own pace — anytime, on any device.'],
+        ['bg' => 'rgba(14,97,95,.12)',    'stroke' => '#14615F', 'title' => $isBn ? 'সাশ্রয়ী মূল্য'          : 'Affordable Pricing',   'desc' => $isBn ? 'সকলের জন্য নমনীয় মূল্য ও সাবস্ক্রিপশন অপশন।' : 'Flexible pricing and subscription options for everyone.'],
     ];
     $categoryIcons = [
         '<path d="M9 17l-5-5 5-5M15 7l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
@@ -144,12 +155,7 @@ new class extends Component
         '<circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.6"/><path d="M5 20c1-3.5 4-5.5 7-5.5s6 2 7 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
         '<path d="M4 19V6a2 2 0 012-2h9l5 5v10a2 2 0 01-2 2H6a2 2 0 01-2-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 4v5h5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
     ];
-    $categoryIconBgs = [
-        'rgba(255,255,255,.14)',
-        'rgba(255,122,46,.12)',
-        'rgba(28,114,111,.12)',
-        'rgba(255,209,119,.25)',
-    ];
+    $categoryIconBgs    = ['rgba(255,255,255,.14)', 'rgba(255,122,46,.12)', 'rgba(28,114,111,.12)', 'rgba(255,209,119,.25)'];
     $categoryIconColors = ['#FFD177', '#FF7A2E', '#1C726F', '#E06524'];
     $fallbackTestimonials = [
         ['quote' => 'Every module was a journey of discovery. The engaging content empowered me to approach challenges at work with newfound confidence.', 'name' => "Michael O'Brien", 'role' => 'Business Analyst', 'initials' => 'MO', 'bg' => '#1C726F'],
@@ -187,17 +193,17 @@ new class extends Component
     <section class="pintar-home-hero">
         <div class="pintar-home-container pintar-home-hero-grid">
             <div class="pintar-home-reveal">
-                <div class="pintar-home-eyebrow">See how our teachers learn</div>
-                <h1>We provide<br><span>fun e-course</span></h1>
-                <p class="pintar-home-hero-copy">Learn new skills the way that actually sticks — bite-sized lessons, live mentors, and a community that keeps you moving forward.</p>
+                <div class="pintar-home-eyebrow">{{ $cms->hero_eyebrow }}</div>
+                <h1>{{ $cms->hero_title }}<br><span>{{ $cms->hero_highlight }}</span></h1>
+                <p class="pintar-home-hero-copy">{{ $cms->hero_description }}</p>
                 <div class="pintar-home-hero-ctas">
                     <a href="#courses" class="pintar-home-btn pintar-home-btn-primary">
-                        View Courses
+                        {{ $cms->hero_btn_primary }}
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </a>
                     <div class="pintar-home-play-inline">
                         <span class="pintar-home-play-btn-sm" aria-hidden="true"></span>
-                        Watch intro
+                        {{ $cms->hero_btn_secondary }}
                     </div>
                 </div>
                 <div class="pintar-home-trust-row">
@@ -259,56 +265,152 @@ new class extends Component
                 </div>
             </div>
             <div class="pintar-home-about-copy pintar-home-reveal">
-                <div class="pintar-home-eyebrow">Abouts us</div>
-                <h2>Founded in 2015</h2>
-                <p>E-Learning Adventures is committed to transforming the traditional learning landscape. With a blend of engaging content, interactive exercises, and cutting-edge technology, we ensure every learner finds their path to success.</p>
+                <div class="pintar-home-eyebrow">{{ $cms->about_eyebrow }}</div>
+                <h2>{{ $cms->about_title }}</h2>
+                <p>{{ $cms->about_description }}</p>
                 <a href="#courses" class="pintar-home-btn-ghost">
-                    Learn more
+                    {{ $cms->about_btn }}
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="#E06524" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </a>
             </div>
         </div>
     </section>
 
-    {{-- Popular Courses --}}
-    <section id="courses" class="pintar-home-section" x-data="{ activeCategory: 'all' }">
+    {{-- Popular Courses Section (Theme Integrated) --}}
+    <section id="courses" class="pintar-home-section">
         <div class="pintar-home-container">
-            <div class="pintar-home-section-head pintar-home-reveal">
-                <div class="pintar-home-eyebrow">Popular Courses</div>
-                <h2>Course that change your life!</h2>
+            
+            {{-- Header Row (Testimonials-style) --}}
+            <div class="pintar-home-testi-head">
+                <div class="pintar-home-section-head pintar-home-reveal" style="margin-bottom:0;">
+                    <div class="pintar-home-eyebrow">{{ __('course.featured_courses') }}</div>
+                    <h2>{{ __('course.popular_courses') }}</h2>
+                </div>
+                <div class="pintar-home-testi-controls pintar-home-reveal">
+                    <button type="button" class="pintar-home-testi-nav-btn"
+                            @click="$refs.slider.scrollBy({ left: -300, behavior: 'smooth' })"
+                            aria-label="Previous">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3L5 8l5 5" stroke="#0E1E1D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <button type="button" class="pintar-home-testi-nav-btn"
+                            @click="$refs.slider.scrollBy({ left: 300, behavior: 'smooth' })"
+                            aria-label="Next">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3l5 5-5 5" stroke="#0E1E1D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
             </div>
 
-            <div class="pintar-home-filter-row pintar-home-reveal">
-                <button type="button" class="pintar-home-filter-pill" :class="activeCategory === 'all' ? 'active' : ''" @click="activeCategory = 'all'">All</button>
-                @foreach($categories->take(5) as $category)
-                    <button type="button" class="pintar-home-filter-pill" :class="activeCategory === '{{ $category->id }}' ? 'active' : ''" @click="activeCategory = '{{ $category->id }}'">{{ $category->name }}</button>
-                @endforeach
-            </div>
+            {{-- 8 Courses Cards Grid / Slider --}}
+            <div x-ref="slider" 
+                 class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                 style="overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;">
+                @forelse($featuredCourses->take(8) as $index => $course)
+                    @php
+                        $effectivePrice = $this->effectivePrice($course);
+                        $hasDiscount = $this->hasDiscount($course);
+                        $badgeText = ($index % 2 === 0) ? __('course.bestseller') : __('course.new_badge');
+                        $badgeBg = ($index % 2 === 0) ? 'bg-rose-500' : 'bg-amber-500';
+                    @endphp
+                    <div wire:key="home-course-{{ $course->id }}" class="w-full flex flex-col">
+                        
+                        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-slate-300 transition-all duration-300 flex flex-col h-full overflow-hidden group">
+                            
+                            {{-- Fixed Height Thumbnail Container --}}
+                            <div class="relative w-full overflow-hidden bg-slate-900" style="height: 175px;">
+                                @if($course->thumbnail)
+                                    <img src="{{ asset('storage/'.$course->thumbnail) }}" alt="{{ $course->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                @else
+                                    <div class="w-full h-full bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 flex items-center justify-center relative">
+                                        <div class="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:16px_16px] opacity-20"></div>
+                                    </div>
+                                @endif
 
-            <div class="pintar-home-course-grid">
-                @forelse($featuredCourses->take(4) as $index => $course)
-                    <div x-show="activeCategory === 'all' || activeCategory === '{{ $course->category_id }}'" x-transition.opacity.duration.200ms wire:key="home-course-{{ $course->id }}">
-                        <x-course-card-pintar
-                            :course="$course"
-                            :index="$index"
-                            :effective-price="$this->effectivePrice($course)"
-                            :has-discount="$this->hasDiscount($course)"
-                            :lesson-count="$this->lessonCount($course)"
-                        />
+                                {{-- Top Left Badge --}}
+                                <div class="absolute top-3 left-3 z-10">
+                                    <span class="{{ $badgeBg }} text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-full shadow-sm">
+                                        {{ $badgeText }}
+                                    </span>
+                                </div>
+
+                                {{-- Center Play Icon Overlay --}}
+                                <a href="{{ route('courses.show', $course->slug) }}" class="absolute inset-0 bg-slate-900/20 group-hover:bg-slate-900/30 transition-colors flex items-center justify-center">
+                                    <div class="w-10 h-10 rounded-full bg-white/90 group-hover:bg-white text-slate-800 flex items-center justify-center shadow-md group-hover:scale-110 transition-all duration-300 pl-0.5">
+                                        <svg class="w-4 h-4 fill-current text-slate-800" viewBox="0 0 24 24">
+                                            <path d="M8 5v14l11-7z"/>
+                                        </svg>
+                                    </div>
+                                </a>
+                            </div>
+
+                            {{-- Card Body --}}
+                            <div class="p-4 flex flex-col justify-between flex-1 space-y-3">
+                                <div>
+                                    {{-- Category Name --}}
+                                    <span class="text-xs font-extrabold text-sky-600 tracking-wide uppercase">
+                                        {{ $course->category->name ?? __('nav.main_types.academic') }}
+                                    </span>
+
+                                    {{-- Course Title --}}
+                                    <h3 class="text-sm font-extrabold text-slate-900 line-clamp-2 leading-snug mt-1 group-hover:text-sky-700 transition-colors min-h-[2.5rem]">
+                                        <a href="{{ route('courses.show', $course->slug) }}">
+                                            {{ $course->title }}
+                                        </a>
+                                    </h3>
+
+                                    {{-- Instructor Name --}}
+                                    <p class="text-xs font-semibold text-slate-500 mt-1 flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                        <span>{{ $course->instructor?->name ?? 'Rahim Ahmed' }}</span>
+                                    </p>
+                                </div>
+
+                                <div>
+                                    {{-- Rating & Student Count --}}
+                                    <div class="flex items-center gap-1.5 text-xs text-slate-500 font-semibold mb-2">
+                                        <span class="text-amber-500 font-bold flex items-center gap-0.5">
+                                            ★ {{ $course->averageRating() > 0 ? number_format($course->averageRating(), 1) : '4.8' }}
+                                        </span>
+                                        <span class="text-slate-400">({{ $course->reviewsCount() > 0 ? $course->reviewsCount() : '320' }})</span>
+                                        <span class="text-slate-300">•</span>
+                                        <span>{{ $course->enrollments_count > 0 ? number_format($course->enrollments_count) : '12.5k' }}</span>
+                                    </div>
+
+                                    {{-- Price Display --}}
+                                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+                                        <div class="flex items-baseline gap-2">
+                                            <span class="text-base font-black text-slate-900">৳{{ number_format($effectivePrice, 0) }}</span>
+                                            @if($hasDiscount && isset($course->price))
+                                                <span class="text-xs text-slate-400 line-through font-semibold">৳{{ number_format($course->price, 0) }}</span>
+                                            @endif
+                                        </div>
+
+                                        <a href="{{ route('courses.show', $course->slug) }}" 
+                                           class="text-xs font-bold text-sky-600 hover:text-sky-700 flex items-center gap-1 transition-colors">
+                                            <span>{{ __('course.watch_btn') }}</span>
+                                            <svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
                     </div>
                 @empty
-                    <div class="col-span-full py-16 text-center pintar-home-reveal">
-                        <p class="text-lg font-bold text-brand-navy">No courses available at the moment.</p>
+                    <div class="col-span-full py-12 text-center text-slate-400 text-sm">
+                        {{ __('course.no_lessons') }}
                     </div>
                 @endforelse
             </div>
 
-            <div class="text-center mt-11 pintar-home-reveal">
-                <a href="{{ route('courses.list') }}" class="pintar-home-btn pintar-home-btn-outline">
-                    View Courses
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="#0E1E1D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            {{-- Bottom CTA --}}
+            <div class="pintar-home-dots" style="margin-top:2.5rem;">
+                <a href="{{ route('courses.list') }}" class="pintar-home-btn-ghost">
+                    {{ __('course.view_all_courses') }}
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="#E06524" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </a>
             </div>
+
         </div>
     </section>
 
@@ -406,15 +508,19 @@ new class extends Component
         }
     @endphp
 
-    <section class="py-12 md:py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-2xl mx-auto mb-10">
-                <span class="font-bold text-sm sm:text-base tracking-wide block mb-1" style="color: var(--brand-orange-soft, #e06524);">
-                    {{ $isBn ? 'ক্যাটাগরি' : 'Category' }}
-                </span>
-                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight" style="color: var(--brand-navy, #0e1e1d);">
-                    {{ $isBn ? 'আপনার যা প্রয়োজন, সবই এখানে' : 'Everything You Need Is Right Here' }}
-                </h2>
+    <section class="pintar-home-section">
+        <div class="pintar-home-container">
+            <div class="pintar-home-why-top">
+                <div class="pintar-home-section-head pintar-home-reveal" style="margin-bottom:0;">
+                    <div class="pintar-home-eyebrow">{{ $isBn ? 'ক্যাটাগরি' : 'Category' }}</div>
+                    <h2>
+                        {{ $isBn ? 'আপনার যা প্রয়োজন, সবই এখানে' : 'Everything You Need Is Right Here' }}
+                    </h2>
+                </div>
+                <a href="{{ route('courses.list') }}" class="pintar-home-btn-ghost pintar-home-reveal">
+                    {{ $isBn ? 'সব কোর্স দেখুন' : 'See All Courses' }}
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="#E06524" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </a>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
@@ -446,8 +552,8 @@ new class extends Component
         <div class="pintar-home-container">
             <div class="pintar-home-why-top">
                 <div class="pintar-home-section-head pintar-home-reveal" style="margin-bottom:0;">
-                    <div class="pintar-home-eyebrow">Why choose us</div>
-                    <h2>Our courses are designed to be immersive and interactive!</h2>
+                    <div class="pintar-home-eyebrow">{{ $cms->whyus_eyebrow }}</div>
+                    <h2>{{ $cms->whyus_title }}</h2>
                 </div>
                 <a href="{{ route('courses.list') }}" class="pintar-home-btn-ghost pintar-home-reveal">
                     Learn more
@@ -473,8 +579,8 @@ new class extends Component
     <section id="pricing" class="pintar-home-section">
         <div class="pintar-home-container">
             <div class="pintar-home-section-head center pintar-home-reveal">
-                <div class="pintar-home-eyebrow">Pricing</div>
-                <h2>Pricing Plan</h2>
+                <div class="pintar-home-eyebrow">{{ $cms->pricing_eyebrow }}</div>
+                <h2>{{ $cms->pricing_title }}</h2>
             </div>
 
             <div class="pintar-home-pricing-grid">
@@ -551,6 +657,7 @@ new class extends Component
     </section>
 
     {{-- Mobile App --}}
+    {{-- 
     <section class="pintar-home-section">
         <div class="pintar-home-container">
             <div class="pintar-home-app-section">
@@ -614,6 +721,7 @@ new class extends Component
             </div>
         </div>
     </section>
+    --}}
 
     {{-- Testimonials --}}
     <section id="testimonials" class="pintar-home-section"
@@ -664,8 +772,8 @@ new class extends Component
         <div class="pintar-home-container">
             <div class="pintar-home-testi-head">
                 <div class="pintar-home-section-head pintar-home-reveal" style="margin-bottom:0;">
-                    <div class="pintar-home-eyebrow">Testimonials</div>
-                    <h2>"Here our customers say"</h2>
+                    <div class="pintar-home-eyebrow">{{ $cms->testi_eyebrow }}</div>
+                    <h2>{{ $cms->testi_title }}</h2>
                 </div>
                 <div class="pintar-home-testi-controls pintar-home-reveal">
                     <button type="button" class="pintar-home-testi-nav-btn" @click="prev()" aria-label="Previous">
@@ -714,6 +822,44 @@ new class extends Component
                 </div>
             </div>
             <div class="pintar-home-dots" x-ref="dots"></div>
+        </div>
+    {{-- Call To Action Banner --}}
+    <section class="pintar-home-section pt-4 pb-16">
+        <div class="pintar-home-container">
+            <div class="relative overflow-hidden py-14 px-6 sm:px-12 md:py-16 text-center text-white shadow-xl"
+                 style="background: linear-gradient(155deg, var(--brand-navy, #0e1e1d) 0%, var(--brand-teal, #1d7270) 50%, var(--brand-teal-deep, #14615f) 100%); border-radius: 36px;">
+                
+                {{-- Decorative background glow effect --}}
+                <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full blur-3xl pointer-events-none" style="background: rgba(255, 255, 255, 0.08);"></div>
+                <div class="absolute -bottom-24 -right-24 w-72 h-72 rounded-full blur-3xl pointer-events-none" style="background: rgba(29, 114, 112, 0.25);"></div>
+
+                <div class="relative z-10 max-w-3xl mx-auto">
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white mb-3">
+                        {{ __('course.cta_title') }}
+                    </h2>
+                    
+                    <p class="text-slate-100/90 text-sm sm:text-base font-medium max-w-xl mx-auto mb-8 leading-relaxed">
+                        {{ __('course.cta_subtitle') }}
+                    </p>
+
+                    <div>
+                        @auth
+                            <a href="{{ route('courses.list') }}" 
+                               class="inline-flex items-center justify-center px-8 py-3.5 rounded-xl text-white font-bold text-base shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer"
+                               style="background-color: var(--brand-orange-soft, #e06524); shadow-color: rgba(224, 101, 36, 0.3);">
+                                <span>{{ __('course.cta_btn_auth') }}</span>
+                            </a>
+                        @else
+                            <button type="button" 
+                                    @click="$dispatch('open-auth-drawer')"
+                                    class="inline-flex items-center justify-center px-8 py-3.5 rounded-xl text-white font-bold text-base shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer"
+                                    style="background-color: var(--brand-orange-soft, #e06524);">
+                                <span>{{ __('course.cta_btn_guest') }}</span>
+                            </button>
+                        @endauth
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 </div>

@@ -12,6 +12,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
@@ -25,32 +27,74 @@ class CourseForm
             ->components([
                 Wizard::make([
 
-                    // ── Step 1: Basic Details ──
+                    // ── Step 1: Basic Details (Multilingual) ──
                     Step::make('মৌলিক তথ্য')
-                        ->description('কোর্সের নাম, ক্যাটাগরি, শিক্ষক ও বিবরণ')
+                        ->description('কোর্সের নাম, ক্যাটাগরি, শিক্ষক ও বিবরণ (EN / BN)')
                         ->icon('heroicon-o-document-text')
                         ->schema([
+                            Tabs::make('Course Titles & Details')
+                                ->tabs([
+                                    Tab::make('English Content')
+                                        ->icon('heroicon-o-language')
+                                        ->schema([
+                                            TextInput::make('title_en')
+                                                ->label('Course Title (English)')
+                                                ->placeholder('e.g. AI & ML Engineering Bootcamp')
+                                                ->required()
+                                                ->maxLength(255)
+                                                ->live(onBlur: true)
+                                                ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                                    if (! $get('slug')) {
+                                                        $set('slug', Str::slug((string) $state));
+                                                    }
+                                                    if (! $get('title')) {
+                                                        $set('title', $state);
+                                                    }
+                                                }),
+
+                                            Textarea::make('sub_description_en')
+                                                ->label('Sub Description (English)')
+                                                ->placeholder('Short summary or tagline in English...')
+                                                ->rows(3),
+
+                                            RichEditor::make('description_en')
+                                                ->label('Full Description (English)'),
+                                        ]),
+
+                                    Tab::make('বাংলা কন্টেন্ট')
+                                        ->icon('heroicon-o-language')
+                                        ->schema([
+                                            TextInput::make('title_bn')
+                                                ->label('Course Title (বাংলা)')
+                                                ->placeholder('যেমন: এআই এবং মেশিন লার্নিং বুটক্যাম্প')
+                                                ->required()
+                                                ->maxLength(255)
+                                                ->live(onBlur: true)
+                                                ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                                    if (! $get('title')) {
+                                                        $set('title', $state);
+                                                    }
+                                                }),
+
+                                            Textarea::make('sub_description_bn')
+                                                ->label('Sub Description (বাংলা)')
+                                                ->placeholder('কোর্সের ছোট সারসংক্ষেপ বা সাব-টাইটেল বাংলায়...')
+                                                ->rows(3),
+
+                                            RichEditor::make('description_bn')
+                                                ->label('Full Description (বাংলা)'),
+                                        ]),
+                                ])->columnSpanFull(),
+
                             TextInput::make('title')
-                                ->label('Course Title (কোর্সের নাম)')
-                                ->placeholder('যেমন: AI & ML Engineering Bootcamp')
-                                ->required()
-                                ->maxLength(255)
-                                ->live(onBlur: true)
-                                ->afterStateUpdated(fn ($state, callable $set) =>
-                                    $set('slug', Str::slug($state))
-                                ),
+                                ->label('Legacy Title (auto-synced)')
+                                ->hidden(),
 
                             TextInput::make('slug')
                                 ->label('Slug (ইউআরএল)')
                                 ->required()
                                 ->unique(ignoreRecord: true)
                                 ->maxLength(255),
-
-                            Textarea::make('sub_description')
-                                ->label('Sub Description (কোর্সের ছোট সারসংক্ষেপ / সাব-টাইটেল)')
-                                ->placeholder('যেমন: আপনি যদি একদম বিগিনার হয়ে থাকেন, তাহলে এই কোর্সটি আপনার জন্য...')
-                                ->rows(3)
-                                ->columnSpanFull(),
 
                             Select::make('category_id')
                                 ->label('Category (ক্যাটাগরি)')
@@ -66,10 +110,6 @@ class CourseForm
                                 ->preload()
                                 ->nullable()
                                 ->placeholder('ইন্সট্রাক্টর নির্বাচন করুন'),
-
-                            RichEditor::make('description')
-                                ->label('Description (কোর্সের বিস্তারিত বিবরণ)')
-                                ->columnSpanFull(),
 
                             FileUpload::make('thumbnail')
                                 ->label('Thumbnail Image (কভার ছবি)')
@@ -128,9 +168,9 @@ class CourseForm
                                 ->required(),
                         ])->columns(2),
 
-                    // ── Step 3: Landing Page & Features ──
+                    // ── Step 3: Landing Page & Features (EN & BN) ──
                     Step::make('ল্যান্ডিং পেজ ও সুবিধা')
-                        ->description('প্রোমো ভিডিও, কোর্সের সুবিধা ও টুলস')
+                        ->description('প্রোমো ভিডিও, কোর্সের সুবিধা ও টুলস (EN / BN)')
                         ->icon('heroicon-o-sparkles')
                         ->schema([
                             TextInput::make('video_url')
@@ -138,6 +178,47 @@ class CourseForm
                                 ->placeholder('https://www.youtube.com/watch?v=...')
                                 ->url()
                                 ->columnSpanFull(),
+
+                            Tabs::make('Multilingual Features & Tools')
+                                ->tabs([
+                                    Tab::make('English Features')
+                                        ->schema([
+                                            Repeater::make('key_features_en')
+                                                ->label('Key Features (English)')
+                                                ->simple(
+                                                    TextInput::make('feature')->required()
+                                                )
+                                                ->defaultItems(0)
+                                                ->addActionLabel('+ Add English Feature'),
+
+                                            Repeater::make('tools_en')
+                                                ->label('Tools & Technologies (English)')
+                                                ->simple(
+                                                    TextInput::make('tool')->required()
+                                                )
+                                                ->defaultItems(0)
+                                                ->addActionLabel('+ Add English Tool'),
+                                        ]),
+
+                                    Tab::make('বাংলা সুবিধা ও টুলস')
+                                        ->schema([
+                                            Repeater::make('key_features_bn')
+                                                ->label('Key Features (বাংলা)')
+                                                ->simple(
+                                                    TextInput::make('feature')->required()
+                                                )
+                                                ->defaultItems(0)
+                                                ->addActionLabel('+ বাংলা ফিচার যোগ করুন'),
+
+                                            Repeater::make('tools_bn')
+                                                ->label('Tools & Technologies (বাংলা)')
+                                                ->simple(
+                                                    TextInput::make('tool')->required()
+                                                )
+                                                ->defaultItems(0)
+                                                ->addActionLabel('+ বাংলা টুল যোগ করুন'),
+                                        ]),
+                                ])->columnSpanFull(),
 
                             Repeater::make('course_includes')
                                 ->label('এই কোর্সে আপনি পাচ্ছেন (সুবিধাসমূহ)')
@@ -150,69 +231,77 @@ class CourseForm
                                 ->defaultItems(0)
                                 ->addActionLabel('+ আরো সুবিধা যোগ করুন')
                                 ->columnSpanFull(),
-
-                            Repeater::make('key_features')
-                                ->label('Key Features (মূল আকর্ষণ)')
-                                ->simple(
-                                    TextInput::make('feature')->required()
-                                )
-                                ->defaultItems(0)
-                                ->addActionLabel('+ ফিচার যোগ করুন')
-                                ->columnSpanFull(),
-
-                            Repeater::make('tools')
-                                ->label('Tools & Technologies (যেসব টুলস শিখবেন)')
-                                ->simple(
-                                    TextInput::make('tool')->required()
-                                )
-                                ->defaultItems(0)
-                                ->addActionLabel('+ টুল যোগ করুন')
-                                ->columnSpanFull(),
-
-                            Repeater::make('career_opportunities')
-                                ->label('Career Opportunities (ক্যারিয়ার সুযোগ)')
-                                ->simple(
-                                    TextInput::make('job_role')->required()
-                                )
-                                ->defaultItems(0)
-                                ->addActionLabel('+ জব রোল যোগ করুন')
-                                ->columnSpanFull(),
                         ]),
 
-                    // ── Step 4: Projects & FAQs ──
+                    // ── Step 4: Projects & FAQs (EN & BN) ──
                     Step::make('প্রজেক্ট ও সাধারণ জিজ্ঞাসা')
-                        ->description('প্র্যাকটিক্যাল প্রজেক্ট ও FAQ')
+                        ->description('প্র্যাকটিক্যাল প্রজেক্ট ও FAQ (EN / BN)')
                         ->icon('heroicon-o-academic-cap')
                         ->schema([
-                            Repeater::make('projects')
-                                ->label('Projects (যেসব প্রজেক্ট করবেন)')
-                                ->schema([
-                                    TextInput::make('title')
-                                        ->label('Project Title')
-                                        ->required(),
-                                    FileUpload::make('image')
-                                        ->label('Project Preview Image')
-                                        ->image()
-                                        ->disk('public')
-                                        ->directory('course-projects')
-                                        ->required(),
-                                ])
-                                ->columns(2)
-                                ->columnSpanFull(),
+                            Tabs::make('Multilingual Projects & FAQs')
+                                ->tabs([
+                                    Tab::make('English Projects & FAQs')
+                                        ->schema([
+                                            Repeater::make('projects_en')
+                                                ->label('Projects (English)')
+                                                ->schema([
+                                                    TextInput::make('title')
+                                                        ->label('Project Title (EN)')
+                                                        ->required(),
+                                                    FileUpload::make('image')
+                                                        ->label('Project Preview Image')
+                                                        ->image()
+                                                        ->disk('public')
+                                                        ->directory('course-projects')
+                                                        ->required(),
+                                                ])
+                                                ->columns(2),
 
-                            Repeater::make('faqs')
-                                ->label('FAQs (সচরাচর জিজ্ঞাসা ও উত্তর)')
-                                ->schema([
-                                    TextInput::make('question')
-                                        ->label('Question (প্রশ্ন)')
-                                        ->required()
-                                        ->columnSpanFull(),
-                                    Textarea::make('answer')
-                                        ->label('Answer (উত্তর)')
-                                        ->required()
-                                        ->columnSpanFull(),
-                                ])
-                                ->columnSpanFull(),
+                                            Repeater::make('faqs_en')
+                                                ->label('FAQs (English)')
+                                                ->schema([
+                                                    TextInput::make('question')
+                                                        ->label('Question (EN)')
+                                                        ->required()
+                                                        ->columnSpanFull(),
+                                                    Textarea::make('answer')
+                                                        ->label('Answer (EN)')
+                                                        ->required()
+                                                        ->columnSpanFull(),
+                                                ]),
+                                        ]),
+
+                                    Tab::make('বাংলা প্রজেক্ট ও FAQ')
+                                        ->schema([
+                                            Repeater::make('projects_bn')
+                                                ->label('Projects (বাংলা)')
+                                                ->schema([
+                                                    TextInput::make('title')
+                                                        ->label('Project Title (BN)')
+                                                        ->required(),
+                                                    FileUpload::make('image')
+                                                        ->label('Project Preview Image')
+                                                        ->image()
+                                                        ->disk('public')
+                                                        ->directory('course-projects')
+                                                        ->required(),
+                                                ])
+                                                ->columns(2),
+
+                                            Repeater::make('faqs_bn')
+                                                ->label('FAQs (বাংলা)')
+                                                ->schema([
+                                                    TextInput::make('question')
+                                                        ->label('Question (BN)')
+                                                        ->required()
+                                                        ->columnSpanFull(),
+                                                    Textarea::make('answer')
+                                                        ->label('Answer (BN)')
+                                                        ->required()
+                                                        ->columnSpanFull(),
+                                                ]),
+                                        ]),
+                                ])->columnSpanFull(),
                         ]),
 
                 ])->columnSpanFull(),
