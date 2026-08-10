@@ -112,6 +112,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         ->name('courses.modules.update');
     Route::delete('courses/{course}/modules/{module}', [\App\Http\Controllers\Admin\CourseController::class, 'destroyModule'])
         ->name('courses.modules.destroy');
+    // Enrollment resource
+    Route::resource('enrollments', \App\Http\Controllers\Admin\EnrollmentController::class);
+
+    // User resource
+    Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
 });
 
 require __DIR__ . '/auth.php';

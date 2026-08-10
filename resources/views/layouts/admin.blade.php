@@ -74,22 +74,20 @@
                     <div class="px-3 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Users & Enrollments</div>
                     <div class="space-y-0.5">
 
-                        <a href="#"
-                           class="group flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-slate-600 opacity-40 cursor-not-allowed select-none">
+                        <a href="{{ route('admin.users.index') }}"
+                           class="group flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm transition-all duration-150 {{ request()->routeIs('admin.users.*') ? 'bg-sky-600 text-white shadow-md shadow-sky-900/30' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100' }}">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
                             <span>Users</span>
-                            <span class="ml-auto text-[9px] font-bold bg-slate-700 text-slate-400 px-1.5 py-0.5 rounded-md">Soon</span>
                         </a>
 
-                        <a href="#"
-                           class="group flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-slate-600 opacity-40 cursor-not-allowed select-none">
+                        <a href="{{ route('admin.enrollments.index') }}"
+                           class="group flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm transition-all duration-150 {{ request()->routeIs('admin.enrollments.*') ? 'bg-sky-600 text-white shadow-md shadow-sky-900/30' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100' }}">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                             </svg>
                             <span>Enrollments</span>
-                            <span class="ml-auto text-[9px] font-bold bg-slate-700 text-slate-400 px-1.5 py-0.5 rounded-md">Soon</span>
                         </a>
 
                     </div>
