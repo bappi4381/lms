@@ -44,21 +44,6 @@
         </a>
     </div>
 
-    <!-- Stats Row -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        @php
-            $statusColors = ['paid' => 'emerald', 'pending' => 'amber', 'failed' => 'rose', 'refunded' => 'slate'];
-        @endphp
-        @foreach($paymentStatuses as $status => $label)
-            <div class="bg-white rounded-2xl border border-slate-200/80 p-4 text-center">
-                <div class="text-2xl font-extrabold text-{{ $statusColors[$status] ?? 'slate' }}-600">
-                    {{ \App\Models\Enrollment::where('payment_status', $status)->count() }}
-                </div>
-                <div class="text-xs text-slate-500 font-medium mt-1">{{ $label }}</div>
-            </div>
-        @endforeach
-    </div>
-
     <!-- Table -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">

@@ -61,26 +61,6 @@
         </div>
     @endif
 
-    <!-- Stats Row -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 text-center">
-            <div class="text-2xl font-extrabold text-sky-600">{{ $courses->total() }}</div>
-            <div class="text-xs text-slate-500 font-medium mt-1">Total Courses</div>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 text-center">
-            <div class="text-2xl font-extrabold text-emerald-600">{{ $courses->where('is_published', true)->count() }}</div>
-            <div class="text-xs text-slate-500 font-medium mt-1">Published</div>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 text-center">
-            <div class="text-2xl font-extrabold text-amber-500">{{ $courses->where('is_published', false)->count() }}</div>
-            <div class="text-xs text-slate-500 font-medium mt-1">Drafts</div>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 text-center">
-            <div class="text-2xl font-extrabold text-violet-600">{{ $courses->sum('enrollments_count') }}</div>
-            <div class="text-xs text-slate-500 font-medium mt-1">Total Enrollments</div>
-        </div>
-    </div>
-
     <!-- Data Table -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">

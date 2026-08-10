@@ -43,21 +43,6 @@
         </a>
     </div>
 
-    <!-- Stats Row -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        @foreach([
-            ['label' => 'Total Users',   'count' => \App\Models\User::count(),                             'color' => 'sky'],
-            ['label' => 'Students',      'count' => \App\Models\User::role('student')->count(),             'color' => 'emerald'],
-            ['label' => 'Instructors',   'count' => \App\Models\User::role('instructor')->count(),          'color' => 'violet'],
-            ['label' => 'Admins',        'count' => \App\Models\User::role('admin')->count(),               'color' => 'rose'],
-        ] as $stat)
-            <div class="bg-white rounded-2xl border border-slate-200/80 p-4 text-center">
-                <div class="text-2xl font-extrabold text-{{ $stat['color'] }}-600">{{ $stat['count'] }}</div>
-                <div class="text-xs text-slate-500 font-medium mt-1">{{ $stat['label'] }}</div>
-            </div>
-        @endforeach
-    </div>
-
     <!-- Table -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
