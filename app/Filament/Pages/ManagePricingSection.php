@@ -10,6 +10,8 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
@@ -19,7 +21,7 @@ class ManagePricingSection extends Page implements HasForms
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCurrencyDollar;
     protected static ?string $navigationLabel = 'Pricing Section';
-    protected static ?string $title = 'Pricing Section (CRM)';
+    protected static ?string $title = 'Pricing Section Management (CRM)';
     protected static ?int $navigationSort = 4;
     protected string $view = 'filament.pages.manage-pricing-section';
 
@@ -40,12 +42,33 @@ class ManagePricingSection extends Page implements HasForms
     {
         return $form
             ->schema([
-                TextInput::make('pricing_eyebrow_en')->label('Eyebrow Text (English)')->placeholder('e.g. Pricing'),
-                TextInput::make('pricing_eyebrow_bn')->label('Eyebrow Text (বাংলা)')->placeholder('যেমন: মূল্য পরিকল্পনা'),
-                TextInput::make('pricing_title_en')->label('Section Title (English)')->placeholder('e.g. Pricing Plan'),
-                TextInput::make('pricing_title_bn')->label('Section Title (বাংলা)')->placeholder('যেমন: প্রাইসিং প্ল্যান'),
+                Section::make('Pricing Section Headings')
+                    ->description('Set eyebrow label and title for Pricing Section on the homepage.')
+                    ->icon('heroicon-o-currency-dollar')
+                    ->schema([
+                        Grid::make(2)->schema([
+                            TextInput::make('pricing_eyebrow_bn')
+                                ->label('Eyebrow Text (বাংলা)')
+                                ->placeholder('যেমন: মূল্য পরিকল্পনা')
+                                ->required(),
+
+                            TextInput::make('pricing_eyebrow_en')
+                                ->label('Eyebrow Text (English)')
+                                ->placeholder('e.g. Pricing')
+                                ->required(),
+
+                            TextInput::make('pricing_title_bn')
+                                ->label('Section Title (বাংলা)')
+                                ->placeholder('যেমন: প্রাইসিং প্ল্যান')
+                                ->required(),
+
+                            TextInput::make('pricing_title_en')
+                                ->label('Section Title (English)')
+                                ->placeholder('e.g. Pricing Plan')
+                                ->required(),
+                        ]),
+                    ]),
             ])
-            ->columns(2)
             ->statePath('data');
     }
 
@@ -53,6 +76,11 @@ class ManagePricingSection extends Page implements HasForms
     {
         $state = $this->form->getState();
         SiteSetting::getSettings()->update($state);
-        Notification::make()->title('Pricing Section সফলভাবে আপডেট হয়েছে!')->success()->send();
+        SiteSetting::clearCache();
+
+        Notification::make()
+            ->title('Pricing Section সফলভাবে আপডেট হয়েছে!')
+            ->success()
+            ->send();
     }
 }

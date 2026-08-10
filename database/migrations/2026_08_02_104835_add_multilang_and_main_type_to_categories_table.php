@@ -34,6 +34,7 @@ return new class extends Migration
         });
 
         Schema::table('categories', function (Blueprint $table) {
+            $table->dropUnique(['slug']);
             $table->dropColumn(['name', 'slug']);
             $table->unique('slug_en');
             $table->unique('slug_bn');

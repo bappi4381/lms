@@ -24,8 +24,8 @@ class ManageHeaderFooter extends Page implements HasForms
     use InteractsWithForms;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedGlobeAlt;
-    protected static ?string $navigationLabel = 'Footer Settings';
-    protected static ?string $title = 'Footer Management (CRM)';
+    protected static ?string $navigationLabel = 'Header & Footer';
+    protected static ?string $title = 'Header & Footer Settings (CRM)';
     protected static ?int $navigationSort = 6;
     protected string $view = 'filament.pages.manage-header-footer';
 
@@ -46,10 +46,46 @@ class ManageHeaderFooter extends Page implements HasForms
     {
         return $form
             ->schema([
-                Tabs::make('Footer Settings')
+                Tabs::make('Header & Footer Settings')
                     ->tabs([
 
-                        // ── Tab 1: Footer Brand & About ──
+                        // ── Tab 1: Header Navigation ──
+                        Tab::make('Header Navigation (হেডার নেভিগেশন)')
+                            ->icon('heroicon-o-bars-3')
+                            ->schema([
+                                Repeater::make('header_links')
+                                    ->label('Header Navbar Links (হেডার লিংকসমূহ)')
+                                    ->schema([
+                                        TextInput::make('label_bn')
+                                            ->label('Link Label (বাংলা)')
+                                            ->placeholder('যেমন: হোম')
+                                            ->required(),
+
+                                        TextInput::make('label_en')
+                                            ->label('Link Label (English)')
+                                            ->placeholder('e.g. Home')
+                                            ->required(),
+
+                                        TextInput::make('url')
+                                            ->label('Target URL / Route')
+                                            ->placeholder('e.g. / or #courses')
+                                            ->required(),
+
+                                        Toggle::make('is_active')
+                                            ->label('Active')
+                                            ->default(true),
+
+                                        Toggle::make('open_in_new_tab')
+                                            ->label('Open in New Tab')
+                                            ->default(false),
+                                    ])
+                                    ->columns(2)
+                                    ->defaultItems(0)
+                                    ->addActionLabel('+ Add Header Link')
+                                    ->columnSpanFull(),
+                            ]),
+
+                        // ── Tab 2: Footer Brand & About ──
                         Tab::make('Footer Brand (ব্র্যান্ড ও পরিচিতি)')
                             ->icon('heroicon-o-building-office-2')
                             ->schema([
@@ -64,7 +100,7 @@ class ManageHeaderFooter extends Page implements HasForms
                                     ->rows(3),
                             ]),
 
-                        // ── Tab 2: Footer Navigation Columns ──
+                        // ── Tab 3: Footer Navigation Columns ──
                         Tab::make('Footer Navigation (ফুটার কলামসমূহ)')
                             ->icon('heroicon-o-rectangle-stack')
                             ->schema([
@@ -99,7 +135,7 @@ class ManageHeaderFooter extends Page implements HasForms
                                     ->addActionLabel('+ Add Footer Column'),
                             ]),
 
-                        // ── Tab 3: Contact & Social ──
+                        // ── Tab 4: Contact & Social ──
                         Tab::make('Contact & Social (যোগাযোগ ও সোশাল)')
                             ->icon('heroicon-o-phone')
                             ->schema([
@@ -154,7 +190,7 @@ class ManageHeaderFooter extends Page implements HasForms
                                     ->columnSpanFull(),
                             ]),
 
-                        // ── Tab 4: Copyright Bar ──
+                        // ── Tab 5: Copyright Bar ──
                         Tab::make('Copyright (কপিরাইট নোটিশ)')
                             ->icon('heroicon-o-information-circle')
                             ->schema([
@@ -176,8 +212,10 @@ class ManageHeaderFooter extends Page implements HasForms
     {
         $state = $this->form->getState();
         SiteSetting::getSettings()->update($state);
+        SiteSetting::clearCache();
+
         Notification::make()
-            ->title('Footer Settings সফলভাবে আপডেট করা হয়েছে!')
+            ->title('Header & Footer Settings সফলভাবে আপডেট করা হয়েছে!')
             ->success()
             ->send();
     }
