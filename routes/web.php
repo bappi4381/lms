@@ -96,4 +96,10 @@ Route::post('/payment/failure', [PaymentController::class, 'failure'])->name('pa
 Route::post('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 Route::post('/payment/ipn', [PaymentController::class, 'ipn'])->name('payment.ipn');
 
+// ── Admin Routes (Converted from Filament to Standard Controllers & Blade Views) ──
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
+});
+
 require __DIR__ . '/auth.php';
+
