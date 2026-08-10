@@ -59,7 +59,6 @@ class CategoryRequest extends FormRequest
                 'required_if:parent_id,null',
                 'in:academic,skills,test_prep,professional',
             ],
-            'icon' => ['nullable', 'string', 'max:50'],
             'order' => ['nullable', 'integer'],
             'is_active' => ['nullable', 'boolean'],
         ];

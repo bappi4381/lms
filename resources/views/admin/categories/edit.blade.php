@@ -85,16 +85,7 @@
             <div class="pt-6 border-t border-slate-100">
                 <h3 class="text-base font-bold text-slate-900 mb-1">Additional Options</h3>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Icon / Emoji</label>
-                        <input type="text" 
-                               name="icon" 
-                               value="{{ old('icon', $category->icon) }}" 
-                               placeholder="e.g. 💻 or 🎓" 
-                               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
-                    </div>
-
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Display Order</label>
                         <input type="number" 

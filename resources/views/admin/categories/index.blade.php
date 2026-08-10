@@ -53,7 +53,6 @@
                     <tr class="bg-slate-50/80 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
                         <th class="py-3.5 px-4 w-12 text-center">Order</th>
                         <th class="py-3.5 px-4">Depth</th>
-                        <th class="py-3.5 px-4">Icon</th>
                         <th class="py-3.5 px-4">Name (English / বাংলা)</th>
                         <th class="py-3.5 px-4">Parent Category</th>
                         <th class="py-3.5 px-4">Navbar Section</th>
@@ -69,7 +68,6 @@
                             <td class="py-3.5 px-4">
                                 <span class="px-2 py-0.5 rounded-md text-xs font-bold bg-slate-100 text-slate-600">L{{ $category->depth() }}</span>
                             </td>
-                            <td class="py-3.5 px-4 text-base">{{ $category->icon ?: '📁' }}</td>
                             <td class="py-3.5 px-4 font-bold text-slate-900">
                                 <div>{{ $category->name_en }}</div>
                                 <div class="text-xs font-normal text-slate-500">{{ $category->name_bn }}</div>
