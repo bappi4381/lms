@@ -112,18 +112,12 @@ class CategoryForm
     private static function parentOptions(?Category $record): array
     {
         return Category::query()
-            ->with('parent')
+            ->whereNull('parent_id')
+            ->when($record, fn ($query) => $query->where('id', '!=', $record->id))
             ->orderBy('order')
             ->get()
-            ->filter(fn (Category $category) => $category->depth() < self::MAX_DEPTH)
-            ->when($record, fn ($categories) => $categories->reject(
-                fn (Category $category) => $category->id === $record->id || $category->isDescendantOf($record)
-            ))
-            ->sortBy([['parent_id', 'asc'], ['order', 'asc']])
             ->mapWithKeys(fn (Category $category) => [
-                $category->id => $category->parent
-                    ? "{$category->parent->name_en} → {$category->name_en} / {$category->parent->name_bn} → {$category->name_bn}"
-                    : "{$category->name_en} / {$category->name_bn}",
+                $category->id => "{$category->name_en} / {$category->name_bn}",
             ])
             ->all();
     }

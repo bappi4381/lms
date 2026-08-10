@@ -141,18 +141,12 @@ class CategoryController extends Controller
     private function getParentOptions(?Category $record = null): array
     {
         return Category::query()
-            ->with('parent')
+            ->whereNull('parent_id')
+            ->when($record, fn ($query) => $query->where('id', '!=', $record->id))
             ->orderBy('order')
             ->get()
-            ->filter(fn (Category $cat) => $cat->depth() < self::MAX_DEPTH)
-            ->when($record, fn ($categories) => $categories->reject(
-                fn (Category $cat) => $cat->id === $record->id || $cat->isDescendantOf($record)
-            ))
-            ->sortBy([['parent_id', 'asc'], ['order', 'asc']])
             ->mapWithKeys(fn (Category $cat) => [
-                $cat->id => $cat->parent
-                    ? "{$cat->parent->name_en} → {$cat->name_en} / {$cat->parent->name_bn} → {$cat->name_bn}"
-                    : "{$cat->name_en} / {$cat->name_bn}",
+                $cat->id => "{$cat->name_en} / {$cat->name_bn}",
             ])
             ->all();
     }
