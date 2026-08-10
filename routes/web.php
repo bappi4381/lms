@@ -99,6 +99,19 @@ Route::post('/payment/ipn', [PaymentController::class, 'ipn'])->name('payment.ip
 // ── Admin Routes (Converted from Filament to Standard Controllers & Blade Views) ──
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
+
+    // Course resource
+    Route::resource('courses', \App\Http\Controllers\Admin\CourseController::class);
+
+    // Course → Module sub-resource
+    Route::get('courses/{course}/modules', [\App\Http\Controllers\Admin\CourseController::class, 'modules'])
+        ->name('courses.modules');
+    Route::post('courses/{course}/modules', [\App\Http\Controllers\Admin\CourseController::class, 'storeModule'])
+        ->name('courses.modules.store');
+    Route::put('courses/{course}/modules/{module}', [\App\Http\Controllers\Admin\CourseController::class, 'updateModule'])
+        ->name('courses.modules.update');
+    Route::delete('courses/{course}/modules/{module}', [\App\Http\Controllers\Admin\CourseController::class, 'destroyModule'])
+        ->name('courses.modules.destroy');
 });
 
 require __DIR__ . '/auth.php';
