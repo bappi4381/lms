@@ -1,9 +1,10 @@
 
-
 import Alpine from 'alpinejs';
+import Collapse from '@alpinejs/collapse';
 
 window.Alpine = Alpine;
 
+Alpine.plugin(Collapse);
 Alpine.start();
 
 // Material Design ripple effect for any element with the `md-ripple` class.

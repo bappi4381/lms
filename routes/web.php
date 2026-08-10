@@ -98,6 +98,9 @@ Route::post('/payment/ipn', [PaymentController::class, 'ipn'])->name('payment.ip
 
 // ── Admin Routes (Converted from Filament to Standard Controllers & Blade Views) ──
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+
     Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
 
     // Course resource
