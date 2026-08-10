@@ -45,27 +45,55 @@
             <!-- Navigation Links -->
             <nav class="flex-1 px-4 py-5 overflow-y-auto space-y-5">
 
-                {{-- ── Course Management Group ── --}}
-                <div>
-                    <div class="px-3 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Course Management</div>
-                    <div class="space-y-0.5">
+                {{-- ── Course Management Group Dropdown ── --}}
+                @php
+                    $isCourseGroupActive = request()->routeIs(['admin.categories.*', 'admin.courses.*', 'admin.modules.*', 'admin.lessons.*', 'admin.assignments.*', 'admin.quizzes.*']);
+                @endphp
+                <div x-data="{ open: {{ $isCourseGroupActive ? 'true' : 'false' }} }}" class="space-y-1">
+                    <button type="button" @click="open = !open"
+                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-colors">
+                        <span>Course Management</span>
+                        <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
 
-                        <a href="{{ route('admin.courses.index') }}"
-                           class="group flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm transition-all duration-150 {{ request()->routeIs('admin.courses.*') ? 'bg-sky-600 text-white shadow-md shadow-sky-900/30' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100' }}">
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
-                            <span>Courses</span>
-                        </a>
-
+                    <div x-show="open" x-collapse class="pl-2 space-y-0.5">
                         <a href="{{ route('admin.categories.index') }}"
-                           class="group flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm transition-all duration-150 {{ request()->routeIs('admin.categories.*') ? 'bg-sky-600 text-white shadow-md shadow-sky-900/30' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100' }}">
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 7h.01M7 11h.01M7 15h.01M11 7h7M11 11h7M11 15h7M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z"/>
-                            </svg>
+                           class="group flex items-center gap-3 px-3 py-2 rounded-xl font-semibold text-xs transition-all duration-150 {{ request()->routeIs('admin.categories.*') ? 'bg-sky-600 text-white shadow-md shadow-sky-900/30' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 7h.01M7 11h.01M7 15h.01M11 7h7M11 11h7M11 15h7M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg>
                             <span>Categories</span>
                         </a>
 
+                        <a href="{{ route('admin.courses.index') }}"
+                           class="group flex items-center gap-3 px-3 py-2 rounded-xl font-semibold text-xs transition-all duration-150 {{ request()->routeIs('admin.courses.*') ? 'bg-sky-600 text-white shadow-md shadow-sky-900/30' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                            <span>Courses</span>
+                        </a>
+
+                        <a href="{{ route('admin.modules.index') }}"
+                           class="group flex items-center gap-3 px-3 py-2 rounded-xl font-semibold text-xs transition-all duration-150 {{ request()->routeIs('admin.modules.*') ? 'bg-sky-600 text-white shadow-md shadow-sky-900/30' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            <span>Modules</span>
+                        </a>
+
+                        <a href="{{ route('admin.lessons.index') }}"
+                           class="group flex items-center gap-3 px-3 py-2 rounded-xl font-semibold text-xs transition-all duration-150 {{ request()->routeIs('admin.lessons.*') ? 'bg-sky-600 text-white shadow-md shadow-sky-900/30' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>Lessons</span>
+                        </a>
+
+                        <a href="{{ route('admin.assignments.index') }}"
+                           class="group flex items-center gap-3 px-3 py-2 rounded-xl font-semibold text-xs transition-all duration-150 {{ request()->routeIs('admin.assignments.*') ? 'bg-sky-600 text-white shadow-md shadow-sky-900/30' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                            <span>Assignments</span>
+                        </a>
+
+                        <a href="{{ route('admin.quizzes.index') }}"
+                           class="group flex items-center gap-3 px-3 py-2 rounded-xl font-semibold text-xs transition-all duration-150 {{ request()->routeIs('admin.quizzes.*') ? 'bg-sky-600 text-white shadow-md shadow-sky-900/30' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>Quizzes</span>
+                        </a>
                     </div>
                 </div>
 

@@ -112,6 +112,18 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         ->name('courses.modules.update');
     Route::delete('courses/{course}/modules/{module}', [\App\Http\Controllers\Admin\CourseController::class, 'destroyModule'])
         ->name('courses.modules.destroy');
+    // Modules resource
+    Route::resource('modules', \App\Http\Controllers\Admin\ModuleController::class);
+
+    // Lessons resource
+    Route::resource('lessons', \App\Http\Controllers\Admin\LessonController::class);
+
+    // Assignments resource
+    Route::resource('assignments', \App\Http\Controllers\Admin\AssignmentController::class);
+
+    // Quizzes resource
+    Route::resource('quizzes', \App\Http\Controllers\Admin\QuizController::class);
+
     // Enrollment resource
     Route::resource('enrollments', \App\Http\Controllers\Admin\EnrollmentController::class);
 
