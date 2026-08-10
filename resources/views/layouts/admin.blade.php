@@ -16,6 +16,143 @@
     <style>
         [x-cloak] { display: none !important; }
         body { font-family: 'Inter', sans-serif; }
+
+        :root {
+            --primary: #FF7A2E;
+            --primary-hover: #e0651b;
+            --bg-warm: #F4F0EE;
+            --sage-sidebar: #537A61;
+            --sage-sidebar-hover: #43644f;
+            --sage-sidebar-active: #385342;
+        }
+
+        body {
+            background-color: var(--bg-warm) !important;
+        }
+        
+        aside {
+            background-color: var(--sage-sidebar) !important;
+        }
+        
+        aside .bg-slate-950\/60 {
+            background-color: rgba(56, 83, 66, 0.4) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        aside .border-slate-800 {
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        aside .bg-slate-950\/40 {
+            background-color: rgba(56, 83, 66, 0.3) !important;
+        }
+        
+        aside .border-t {
+            border-top-color: rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        aside .bg-slate-800 {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        aside .bg-slate-800:hover {
+            background-color: rgba(255, 255, 255, 0.15) !important;
+        }
+        
+        aside a, aside button {
+            color: #e2e8f0 !important;
+        }
+        
+        aside a:hover, aside button:hover {
+            background-color: var(--sage-sidebar-hover) !important;
+            color: #ffffff !important;
+        }
+        
+        aside .bg-sky-600 {
+            background-color: var(--primary) !important;
+            color: #ffffff !important;
+        }
+        
+        aside .text-slate-500 {
+            color: #cbd5e1 !important;
+        }
+
+        .bg-sky-600 {
+            background-color: var(--primary) !important;
+        }
+        
+        .bg-sky-600:hover {
+            background-color: var(--primary-hover) !important;
+        }
+        
+        .text-sky-600 {
+            color: var(--primary) !important;
+        }
+        
+        .text-sky-600:hover {
+            color: var(--primary-hover) !important;
+        }
+        
+        .hover\:text-sky-600:hover {
+            color: var(--primary) !important;
+        }
+        
+        .hover\:bg-sky-100:hover {
+            background-color: #fff2eb !important;
+            color: var(--primary) !important;
+        }
+        
+        .bg-sky-50 {
+            background-color: #fff5f0 !important;
+        }
+        
+        .bg-sky-100 {
+            background-color: #ffeae0 !important;
+            color: var(--primary) !important;
+        }
+        
+        .border-sky-200 {
+            border-color: #ffd4c2 !important;
+        }
+        
+        .border-sky-500 {
+            border-color: var(--primary) !important;
+        }
+        
+        .focus\:ring-sky-500:focus {
+            --tw-ring-color: var(--primary) !important;
+        }
+        
+        .text-sky-700 {
+            color: #d15611 !important;
+        }
+        
+        .bg-sky-200 {
+            background-color: #ffd4c2 !important;
+            color: #d15611 !important;
+        }
+        
+        .text-sky-800 {
+            color: #a63f05 !important;
+        }
+        
+        .text-sky-900 {
+            color: #732a00 !important;
+        }
+        
+        .from-sky-500 {
+            --tw-gradient-from: var(--primary) !important;
+            --tw-gradient-to: #ffd4c2 !important;
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+        }
+        
+        .to-indigo-600 {
+            --tw-gradient-to: #d15611 !important;
+        }
+        
+        .shadow-sky-900\/30 {
+            --tw-shadow-color: rgba(255, 122, 46, 0.15) !important;
+        }
     </style>
 </head>
 <body class="h-full bg-slate-100 text-slate-800 antialiased" x-data="{ sidebarOpen: false }">

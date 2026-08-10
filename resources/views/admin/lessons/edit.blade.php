@@ -16,12 +16,12 @@
 
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1.5">Module <span class="text-rose-500">*</span></label>
-                <select name="module_id" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white">
-                    <option value="">— Select Module —</option>
-                    @foreach($modules as $id => $title)
-                        <option value="{{ $id }}" {{ old('module_id', $lesson->module_id) == $id ? 'selected' : '' }}>{{ $title }}</option>
-                    @endforeach
-                </select>
+                <x-searchable-select name="module_id"
+                                     :options="$modules"
+                                     :value="old('module_id', $lesson->module_id)"
+                                     placeholder="— Select Module —"
+                                     searchPlaceholder="Search module..."
+                                     required="true" />
             </div>
 
             <div>
@@ -32,11 +32,12 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">Type <span class="text-rose-500">*</span></label>
-                    <select name="type" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white">
-                        @foreach($types as $val => $label)
-                            <option value="{{ $val }}" {{ old('type', $lesson->type) === $val ? 'selected' : '' }}>{{ $label }}</option>
-                        @endforeach
-                    </select>
+                    <x-searchable-select name="type"
+                                         :options="$types"
+                                         :value="old('type', $lesson->type)"
+                                         placeholder="Select Type"
+                                         searchPlaceholder="Search type..."
+                                         required="true" />
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">Order</label>

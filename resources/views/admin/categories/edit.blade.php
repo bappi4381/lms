@@ -58,24 +58,27 @@
                 <p class="text-xs text-slate-500 mb-4">Categories can be nested up to 3 levels deep (Category → Sub-category → Sub-sub-category).</p>
 
                 <div class="space-y-4">
+                    @php
+                        $parentSelectOptions = ['' => '— No Parent (Top-level Category) —'] + $parentOptions;
+                        $mainTypeSelectOptions = ['' => '— Select Section —'] + $mainTypes;
+                    @endphp
+
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Parent Category</label>
-                        <select name="parent_id" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
-                            <option value="">— No Parent (Top-level Category) —</option>
-                            @foreach($parentOptions as $id => $label)
-                                <option value="{{ $id }}" {{ old('parent_id', $category->parent_id) == $id ? 'selected' : '' }}>{{ $label }}</option>
-                            @endforeach
-                        </select>
+                        <x-searchable-select name="parent_id"
+                                             :options="$parentSelectOptions"
+                                             :value="old('parent_id', $category->parent_id)"
+                                             placeholder="— No Parent (Top-level Category) —"
+                                             searchPlaceholder="Search parent category..." />
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Main Navbar Section</label>
-                        <select name="main_type" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
-                            <option value="">— Select Section —</option>
-                            @foreach($mainTypes as $key => $label)
-                                <option value="{{ $key }}" {{ old('main_type', $category->main_type) == $key ? 'selected' : '' }}>{{ $label }}</option>
-                            @endforeach
-                        </select>
+                        <x-searchable-select name="main_type"
+                                             :options="$mainTypeSelectOptions"
+                                             :value="old('main_type', $category->main_type)"
+                                             placeholder="— Select Section —"
+                                             searchPlaceholder="Search section..." />
                         <span class="text-[11px] text-slate-500 mt-1 block">Required for Top-level categories. Sub-categories inherit this from their parent.</span>
                     </div>
                 </div>

@@ -121,27 +121,19 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">Category</label>
-                    <select name="category_id"
-                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white">
-                        <option value="">— Select Category —</option>
-                        @foreach($categories as $id => $label)
-                            <option value="{{ $id }}" {{ old('category_id', $course?->category_id) == $id ? 'selected' : '' }}>
-                                {{ $label }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <x-searchable-select name="category_id"
+                                         :options="$categories"
+                                         :value="old('category_id', $course?->category_id)"
+                                         placeholder="— Select Category —"
+                                         searchPlaceholder="Search category..." />
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">Instructor</label>
-                    <select name="instructor_id"
-                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white">
-                        <option value="">— No Instructor —</option>
-                        @foreach($instructors as $id => $name)
-                            <option value="{{ $id }}" {{ old('instructor_id', $course?->instructor_id) == $id ? 'selected' : '' }}>
-                                {{ $name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <x-searchable-select name="instructor_id"
+                                         :options="$instructors"
+                                         :value="old('instructor_id', $course?->instructor_id)"
+                                         placeholder="— No Instructor —"
+                                         searchPlaceholder="Search instructor..." />
                 </div>
             </div>
 

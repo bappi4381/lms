@@ -16,12 +16,12 @@
 
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1.5">Course <span class="text-rose-500">*</span></label>
-                <select name="course_id" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white">
-                    <option value="">— Select Course —</option>
-                    @foreach($courses as $id => $title)
-                        <option value="{{ $id }}" {{ old('course_id', $module->course_id) == $id ? 'selected' : '' }}>{{ $title }}</option>
-                    @endforeach
-                </select>
+                <x-searchable-select name="course_id"
+                                     :options="$courses"
+                                     :value="old('course_id', $module->course_id)"
+                                     placeholder="— Select Course —"
+                                     searchPlaceholder="Search course..."
+                                     required="true" />
             </div>
 
             <div>
@@ -36,14 +36,15 @@
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">Live Provider</label>
-                    <select name="live_class_provider" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white">
-                        <option value="">— None —</option>
-                        <option value="zoom" {{ old('live_class_provider', $module->live_class_provider) === 'zoom' ? 'selected' : '' }}>Zoom</option>
-                        <option value="google_meet" {{ old('live_class_provider', $module->live_class_provider) === 'google_meet' ? 'selected' : '' }}>Google Meet</option>
-                        <option value="other" {{ old('live_class_provider', $module->live_class_provider) === 'other' ? 'selected' : '' }}>Other</option>
-                    </select>
+                    @php
+                        $liveProviders = ['' => '— None —', 'zoom' => 'Zoom', 'google_meet' => 'Google Meet', 'other' => 'Other'];
+                    @endphp
+                    <x-searchable-select name="live_class_provider"
+                                         :options="$liveProviders"
+                                         :value="old('live_class_provider', $module->live_class_provider)"
+                                         placeholder="— None —"
+                                         searchPlaceholder="Search live provider..." />
                 </div>
-            </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
