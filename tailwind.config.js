@@ -16,8 +16,27 @@ export default {
             fontFamily: {
                 sans: ['Inter', 'Figtree', ...defaultTheme.fontFamily.sans],
                 display: ['Rubik', 'Figtree', ...defaultTheme.fontFamily.sans],
+                ledger: ['Fraunces', 'ui-serif', 'Georgia', ...defaultTheme.fontFamily.serif],
+                'ledger-mono': ['"IBM Plex Mono"', ...defaultTheme.fontFamily.mono],
             },
             colors: {
+                /* ── Admin "ledger" theme — Blade admin panel only (see lms-dashboard.html) ── */
+                ledger: {
+                    page: '#F8F7F5',
+                    panel: '#E5E0D5',
+                    card: '#FCFBF9',
+                    ink: '#2B2A26',
+                    'ink-soft': '#6E6858',
+                    'ink-faint': '#9C9686',
+                    accent: '#3F5D45',
+                    'accent-soft': '#DCE5DC',
+                    brick: '#8C4A3B',
+                    'brick-soft': '#EFDDD7',
+                    line: '#D9D2C1',
+                    'line-soft': '#E9E4D8',
+                    gold: '#B08D3E',
+                    'gold-soft': '#F1E7D2',
+                },
                 accent: {
                     DEFAULT: '#1D7270',
                     hover: '#14615F',
@@ -131,6 +150,7 @@ export default {
                 'md-lg': '16px',
                 'md-xl': '28px',
                 'md-full': '9999px',
+                ledger: '3px',
             },
         },
     },
