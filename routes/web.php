@@ -97,7 +97,12 @@ Route::post('/payment/cancel', [PaymentController::class, 'cancel'])->name('paym
 Route::post('/payment/ipn', [PaymentController::class, 'ipn'])->name('payment.ipn');
 
 // ── Admin Routes (Converted from Filament to Standard Controllers & Blade Views) ──
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+// Filament has been fully removed from this project, so the Blade admin now owns
+// the /admin path outright — no more collision risk.
+// Access mirrors the original Filament panel gates exactly:
+//   - Panel access: hasRole(['admin', 'instructor', 'support'])
+//   - Roles/Permissions/Users resources: hasRole('admin') only
+Route::middleware(['auth', 'role:admin|instructor|support'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
@@ -124,14 +129,79 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Assignments resource
     Route::resource('assignments', \App\Http\Controllers\Admin\AssignmentController::class);
 
+    // Assignment → Submissions (grading), mirrors Filament's SubmissionsRelationManager
+    Route::get('assignments/{assignment}/submissions', [\App\Http\Controllers\Admin\AssignmentSubmissionController::class, 'index'])
+        ->name('assignments.submissions.index');
+    Route::get('assignments/{assignment}/submissions/{submission}/edit', [\App\Http\Controllers\Admin\AssignmentSubmissionController::class, 'edit'])
+        ->name('assignments.submissions.edit');
+    Route::put('assignments/{assignment}/submissions/{submission}', [\App\Http\Controllers\Admin\AssignmentSubmissionController::class, 'update'])
+        ->name('assignments.submissions.update');
+
     // Quizzes resource
     Route::resource('quizzes', \App\Http\Controllers\Admin\QuizController::class);
 
     // Enrollment resource
     Route::resource('enrollments', \App\Http\Controllers\Admin\EnrollmentController::class);
 
-    // User resource
-    Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+    // User resource — admin only, mirrors UserResource::canAccess()
+    Route::resource('users', \App\Http\Controllers\Admin\UserController::class)
+        ->middleware('role:admin');
+
+    // Role & Permission resources — admin only, mirror RoleResource/PermissionResource::canAccess()
+    Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class)
+        ->middleware('role:admin');
+    Route::resource('permissions', \App\Http\Controllers\Admin\PermissionController::class)
+        ->middleware('role:admin');
+
+    // Device resource — no create page (devices are created by the app itself)
+    Route::resource('devices', \App\Http\Controllers\Admin\DeviceController::class)
+        ->only(['index', 'edit', 'update', 'destroy']);
+
+    // Coupon resource
+    Route::resource('coupons', \App\Http\Controllers\Admin\CouponController::class);
+
+    // Review resource
+    Route::resource('reviews', \App\Http\Controllers\Admin\ReviewController::class)
+        ->only(['index', 'edit', 'update', 'destroy']);
+
+    // Subscription Plan → Subscription → Order trio
+    Route::resource('subscription-plans', \App\Http\Controllers\Admin\SubscriptionPlanController::class);
+    Route::resource('subscriptions', \App\Http\Controllers\Admin\SubscriptionController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+    Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class)
+        ->only(['index', 'edit', 'update']);
+    Route::post('orders/{order}/mark-refunded', [\App\Http\Controllers\Admin\OrderController::class, 'markRefunded'])
+        ->name('orders.mark-refunded');
+
+    // Support Ticket resource — no create page (tickets are created by end users);
+    // "edit" doubles as the ticket detail page (status/priority form + reply thread,
+    // mirroring Filament's EditSupportTicket page + RepliesRelationManager).
+    Route::resource('support-tickets', \App\Http\Controllers\Admin\SupportTicketController::class)
+        ->only(['index', 'edit', 'update', 'destroy']);
+    Route::post('support-tickets/{support_ticket}/reply', [\App\Http\Controllers\Admin\SupportTicketController::class, 'reply'])
+        ->name('support-tickets.reply');
+
+    // Site Settings — converted from the 6 standalone Filament "Manage *Section"
+    // pages, all editing subsets of the same singleton SiteSetting row.
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('hero', [\App\Http\Controllers\Admin\SiteSettingController::class, 'heroEdit'])->name('hero.edit');
+        Route::put('hero', [\App\Http\Controllers\Admin\SiteSettingController::class, 'heroUpdate'])->name('hero.update');
+
+        Route::get('about', [\App\Http\Controllers\Admin\SiteSettingController::class, 'aboutEdit'])->name('about.edit');
+        Route::put('about', [\App\Http\Controllers\Admin\SiteSettingController::class, 'aboutUpdate'])->name('about.update');
+
+        Route::get('why-us', [\App\Http\Controllers\Admin\SiteSettingController::class, 'whyUsEdit'])->name('why-us.edit');
+        Route::put('why-us', [\App\Http\Controllers\Admin\SiteSettingController::class, 'whyUsUpdate'])->name('why-us.update');
+
+        Route::get('pricing', [\App\Http\Controllers\Admin\SiteSettingController::class, 'pricingEdit'])->name('pricing.edit');
+        Route::put('pricing', [\App\Http\Controllers\Admin\SiteSettingController::class, 'pricingUpdate'])->name('pricing.update');
+
+        Route::get('testimonials', [\App\Http\Controllers\Admin\SiteSettingController::class, 'testimonialsEdit'])->name('testimonials.edit');
+        Route::put('testimonials', [\App\Http\Controllers\Admin\SiteSettingController::class, 'testimonialsUpdate'])->name('testimonials.update');
+
+        Route::get('header-footer', [\App\Http\Controllers\Admin\SiteSettingController::class, 'headerFooterEdit'])->name('header-footer.edit');
+        Route::put('header-footer', [\App\Http\Controllers\Admin\SiteSettingController::class, 'headerFooterUpdate'])->name('header-footer.update');
+    });
 });
 
 require __DIR__ . '/auth.php';

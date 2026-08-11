@@ -40,7 +40,9 @@ function handleThumbnailUpload(input) {
         if (!preview) {
             preview = document.createElement('img');
             preview.id = 'thumbnail_preview';
-            preview.className = 'w-32 h-20 object-cover rounded-xl border border-slate-200 mt-2';
+            preview.className = 'w-32 h-20 object-cover rounded mt-2';
+            preview.style.borderRadius = '3px';
+            preview.style.border = '1px solid var(--a-line)';
             input.parentElement.appendChild(preview);
         }
         preview.src = e.target.result;
@@ -146,10 +148,13 @@ function faqRepeater(fieldId) {
 }
 
 /**
- * Alpine component factory for project repeaters (title only).
+ * Alpine component factory for project repeaters (title + preview image upload).
  * @param {string} fieldId - The hidden input element ID
  */
 function projectRepeater(fieldId) {
+    let uidCounter = 0;
+    const nextUid = () => `${fieldId}-${Date.now()}-${uidCounter++}`;
+
     return {
         items: [],
         fieldId: fieldId,
@@ -161,7 +166,9 @@ function projectRepeater(fieldId) {
                     const raw = JSON.parse(hiddenEl.value || '[]');
                     this.items = raw.map(item => ({
                         title: item.title || (typeof item === 'string' ? item : ''),
-                        image: item.image || ''
+                        image: item.image || '',
+                        _previewUrl: '',
+                        _uid: nextUid(),
                     }));
                 } catch (e) {
                     this.items = [];
@@ -170,7 +177,7 @@ function projectRepeater(fieldId) {
         },
 
         add() {
-            this.items.push({ title: '', image: '' });
+            this.items.push({ title: '', image: '', _previewUrl: '', _uid: nextUid() });
             this.save();
         },
 
@@ -179,11 +186,20 @@ function projectRepeater(fieldId) {
             this.save();
         },
 
+        previewImage(event, index) {
+            const file = event.target.files[0];
+            if (!file) return;
+            this.items[index]._previewUrl = URL.createObjectURL(file);
+            this.save();
+        },
+
         save() {
             const hiddenEl = document.getElementById(this.fieldId + '_json');
             if (hiddenEl) {
                 hiddenEl.value = JSON.stringify(
-                    this.items.filter(item => item.title.trim() !== '')
+                    this.items
+                        .filter(item => item.title.trim() !== '')
+                        .map(item => ({ title: item.title, image: item.image }))
                 );
             }
         }

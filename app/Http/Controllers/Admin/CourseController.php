@@ -78,8 +78,12 @@ class CourseController extends Controller
                 ->store('course-thumbnails', 'public');
         }
 
-        // Decode JSON array fields from form
-        $data = $this->processArrayFields($data);
+        // Decode JSON array fields from form + attach uploaded project images
+        $data = $this->processArrayFields($data, $request);
+
+        if ($error = $this->missingProjectImageError($data)) {
+            return redirect()->back()->withErrors(['projects' => $error])->withInput();
+        }
 
         Course::create($data);
 
@@ -115,8 +119,12 @@ class CourseController extends Controller
                 ->store('course-thumbnails', 'public');
         }
 
-        // Decode JSON array fields from form
-        $data = $this->processArrayFields($data);
+        // Decode JSON array fields from form + attach uploaded project images
+        $data = $this->processArrayFields($data, $request);
+
+        if ($error = $this->missingProjectImageError($data)) {
+            return redirect()->back()->withErrors(['projects' => $error])->withInput();
+        }
 
         $course->update($data);
 
@@ -199,7 +207,7 @@ class CourseController extends Controller
      * Process array fields that come as JSON strings from the form.
      * Fields that are cast as arrays in the model should be decoded.
      */
-    private function processArrayFields(array $data): array
+    private function processArrayFields(array $data, Request $request): array
     {
         $arrayFields = [
             'key_features_en', 'key_features_bn',
@@ -218,6 +226,53 @@ class CourseController extends Controller
             }
         }
 
+        // Attach uploaded project preview images (parity with Filament's
+        // FileUpload::make('image') on the projects_en/projects_bn repeaters).
+        $data['projects_en'] = $this->attachProjectImages($request, 'projects_en_images', $data['projects_en']);
+        $data['projects_bn'] = $this->attachProjectImages($request, 'projects_bn_images', $data['projects_bn']);
+
+        unset($data['projects_en_images'], $data['projects_bn_images']);
+
         return $data;
+    }
+
+    /**
+     * Merge uploaded files into project repeater items by submission order.
+     * Existing rows keep their previously stored image path unless a new
+     * file is uploaded for that row.
+     */
+    private function attachProjectImages(Request $request, string $filesField, array $items): array
+    {
+        $files = $request->file($filesField, []);
+
+        foreach ($items as $index => &$item) {
+            $uploaded = $files[$index] ?? null;
+
+            if ($uploaded instanceof \Illuminate\Http\UploadedFile && $uploaded->isValid()) {
+                $item['image'] = $uploaded->store('course-projects', 'public');
+            } else {
+                $item['image'] = $item['image'] ?? '';
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * Every project row must have a preview image (mirrors the Filament
+     * FileUpload::make('image')->required() rule). Returns an error message
+     * if any project row is missing an image, or null when all rows are valid.
+     */
+    private function missingProjectImageError(array $data): ?string
+    {
+        $allProjects = array_merge($data['projects_en'] ?? [], $data['projects_bn'] ?? []);
+
+        foreach ($allProjects as $project) {
+            if (empty($project['image'])) {
+                return 'Each project must have a preview image uploaded.';
+            }
+        }
+
+        return null;
     }
 }

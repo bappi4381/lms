@@ -1,40 +1,22 @@
 @extends('layouts.admin')
 
 @section('title', 'Edit Course: ' . $course->title_en)
+@section('eyebrow', 'Course Management')
 @section('page_heading', 'Edit Course')
 
 @section('content')
-<div class="max-w-5xl mx-auto space-y-6">
+<div class="mx-auto max-w-5xl space-y-5">
 
-    <div class="flex items-center justify-between mb-2">
-        <a href="{{ route('admin.courses.index') }}" class="text-sm text-slate-500 hover:text-sky-600 flex items-center gap-1">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    <div class="mb-2 flex items-center justify-between">
+        <a href="{{ route('admin.courses.index') }}" class="inline-flex items-center gap-1 text-[13px] font-semibold" style="color:var(--a-ink-soft)">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             Back to Courses
         </a>
-        <a href="{{ route('admin.courses.modules', $course) }}"
-           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm transition-all">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+        <a href="{{ route('admin.courses.modules', $course) }}" class="admin-btn admin-btn-secondary">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
             Manage Modules ({{ $modules->count() }})
         </a>
     </div>
-
-    @if(session('success'))
-        <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if($errors->any())
-        <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm space-y-1">
-            <p class="font-bold">Please fix the following errors:</p>
-            <ul class="list-disc list-inside">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
 
     <form method="POST" action="{{ route('admin.courses.update', $course) }}" enctype="multipart/form-data" class="space-y-6">
         @csrf
@@ -63,12 +45,8 @@
         @include('admin.courses._form', ['course' => $course])
 
         <div class="flex justify-end gap-3 pt-2">
-            <a href="{{ route('admin.courses.index') }}" class="px-6 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-semibold text-sm hover:bg-slate-50 transition-all">
-                Cancel
-            </a>
-            <button type="submit" class="px-8 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition-all">
-                Update Course
-            </button>
+            <a href="{{ route('admin.courses.index') }}" class="admin-btn admin-btn-ghost">Cancel</a>
+            <button type="submit" class="admin-btn admin-btn-primary">Update Course</button>
         </div>
     </form>
 </div>

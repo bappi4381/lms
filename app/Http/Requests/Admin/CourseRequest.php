@@ -47,6 +47,11 @@ class CourseRequest extends FormRequest
             'projects_bn'            => 'nullable|string',
             'faqs_en'                => 'nullable|string',
             'faqs_bn'                => 'nullable|string',
+            // Project preview images (one file per repeater row, aligned by submit order)
+            'projects_en_images'     => 'nullable|array',
+            'projects_en_images.*'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'projects_bn_images'     => 'nullable|array',
+            'projects_bn_images.*'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ];
     }
 

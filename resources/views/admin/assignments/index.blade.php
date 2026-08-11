@@ -1,82 +1,79 @@
 @extends('layouts.admin')
 
 @section('title', 'Assignment Management')
-@section('page_heading', 'Assignment Management')
+@section('eyebrow', 'Course Management')
+@section('page_heading', 'Assignments')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-5">
 
-    <!-- Filters & Actions -->
-    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <form method="GET" action="{{ route('admin.assignments.index') }}" class="flex flex-wrap items-center gap-3 flex-1">
+    <!-- Filter bar -->
+    <div class="admin-filter-bar">
+        <form method="GET" action="{{ route('admin.assignments.index') }}" class="flex flex-1 flex-wrap items-center gap-3">
             <div class="relative min-w-[200px] flex-1">
                 <input type="text" name="search" value="{{ request('search') }}"
                        placeholder="Search assignment title..."
-                       class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
-                <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                       class="admin-input pl-9">
+                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style="color:var(--a-ink-faint)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             </div>
             @if(request('search'))
-                <a href="{{ route('admin.assignments.index') }}" class="py-2 px-3 text-xs font-semibold text-slate-500 hover:text-slate-800 underline">Clear</a>
+                <a href="{{ route('admin.assignments.index') }}" class="text-[12px] font-semibold underline" style="color:var(--a-ink-soft)">Clear</a>
             @endif
         </form>
 
-        <a href="{{ route('admin.assignments.create') }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition-all shrink-0">
-            <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        <a href="{{ route('admin.assignments.create') }}" class="admin-btn admin-btn-primary shrink-0">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4.5v15m7.5-7.5h-15"/></svg>
             Add Assignment
         </a>
     </div>
 
-    <!-- Data Table -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+    <!-- Data table -->
+    <div class="admin-table-wrap">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-sm">
+            <table class="admin-table">
                 <thead>
-                    <tr class="bg-slate-50/80 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        <th class="py-3.5 px-4">Title</th>
-                        <th class="py-3.5 px-4">Lesson</th>
-                        <th class="py-3.5 px-4">Course</th>
-                        <th class="py-3.5 px-4 text-center">Submissions</th>
-                        <th class="py-3.5 px-4 text-center">Max Points</th>
-                        <th class="py-3.5 px-4">Due Date</th>
-                        <th class="py-3.5 px-4 text-right">Actions</th>
+                    <tr>
+                        <th>Title</th>
+                        <th>Lesson</th>
+                        <th>Course</th>
+                        <th class="text-center">Submissions</th>
+                        <th class="text-center">Max Points</th>
+                        <th>Due Date</th>
+                        <th class="text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 text-slate-700">
+                <tbody>
                     @forelse($assignments as $assignment)
-                        <tr class="hover:bg-slate-50/60 transition-colors">
-                            <td class="py-3.5 px-4 font-bold text-slate-900">{{ $assignment->title }}</td>
-                            <td class="py-3.5 px-4 text-xs font-semibold text-slate-700">{{ $assignment->lesson?->title ?? '—' }}</td>
-                            <td class="py-3.5 px-4 text-xs text-slate-500">{{ $assignment->lesson?->module?->course?->title_en ?? '—' }}</td>
-                            <td class="py-3.5 px-4 text-center">
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-50 text-violet-700 border border-violet-200">
+                        <tr>
+                            <td class="font-semibold" style="color:var(--a-ink)">{{ $assignment->title }}</td>
+                            <td class="text-[12px] font-semibold" style="color:var(--a-ink-soft)">{{ $assignment->lesson?->title ?? '—' }}</td>
+                            <td class="text-[12px]" style="color:var(--a-ink-faint)">{{ $assignment->lesson?->module?->course?->title_en ?? '—' }}</td>
+                            <td class="text-center">
+                                <a href="{{ route('admin.assignments.submissions.index', $assignment) }}" class="admin-badge admin-badge-accent">
                                     {{ $assignment->submissions_count }}
-                                </span>
-                            </td>
-                            <td class="py-3.5 px-4 text-center font-bold text-slate-800">{{ $assignment->max_points }}</td>
-                            <td class="py-3.5 px-4 text-xs text-slate-500">{{ $assignment->due_at?->format('d M Y, h:i A') ?? '—' }}</td>
-                            <td class="py-3.5 px-4 text-right space-x-2">
-                                <a href="{{ route('admin.assignments.edit', $assignment) }}" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-700 hover:text-sky-800 text-xs font-bold transition-all">
-                                    Edit
                                 </a>
-                                <form method="POST" action="{{ route('admin.assignments.destroy', $assignment) }}" class="inline-block" onsubmit="return confirm('Delete this assignment?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition-all">
-                                        Delete
-                                    </button>
-                                </form>
+                            </td>
+                            <td class="text-center font-semibold" style="color:var(--a-ink)">{{ $assignment->max_points }}</td>
+                            <td class="text-[12px]" style="color:var(--a-ink-faint)">{{ $assignment->due_at?->format('d M Y, h:i A') ?? '—' }}</td>
+                            <td class="text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="{{ route('admin.assignments.submissions.index', $assignment) }}" class="admin-btn admin-btn-secondary !min-h-[30px] !px-3 text-[12px]">Submissions</a>
+                                    <a href="{{ route('admin.assignments.edit', $assignment) }}" class="admin-btn admin-btn-secondary !min-h-[30px] !px-3 text-[12px]">Edit</a>
+                                    <form method="POST" action="{{ route('admin.assignments.destroy', $assignment) }}" onsubmit="return confirm('Delete this assignment?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="admin-btn admin-btn-danger !min-h-[30px] !px-3 text-[12px]">Delete</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="7" class="py-12 text-center text-slate-400 text-sm">No assignments found.</td>
-                        </tr>
+                        <tr><td colspan="7" class="admin-empty">No assignments found.</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
         @if($assignments->hasPages())
-            <div class="p-4 border-t border-slate-200 bg-slate-50/50">{{ $assignments->links() }}</div>
+            <div class="border-t px-4 py-3" style="border-color:var(--a-line-soft)">{{ $assignments->links() }}</div>
         @endif
     </div>
 

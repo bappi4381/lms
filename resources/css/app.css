@@ -1019,6 +1019,303 @@
     }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   Admin "Ledger" theme — Blade admin panel only (resources/views/admin/**).
+   Scoped under .admin-shell so it never leaks into the public site theme.
+   Palette/typography reference: lms-dashboard.html (Fraunces + IBM Plex Mono,
+   deep ledger green + brick accents, sharp 3px radius).
+   ═══════════════════════════════════════════════════════════════════════ */
+.admin-shell {
+    --a-page: #F8F7F5;
+    --a-panel: #E5E0D5;
+    --a-card: #FCFBF9;
+    --a-ink: #2B2A26;
+    --a-ink-soft: #6E6858;
+    --a-ink-faint: #9C9686;
+    --a-accent: #3F5D45;
+    --a-accent-soft: #DCE5DC;
+    --a-brick: #8C4A3B;
+    --a-brick-soft: #EFDDD7;
+    --a-gold: #B08D3E;
+    --a-gold-soft: #F1E7D2;
+    --a-line: #D9D2C1;
+    --a-line-soft: #E9E4D8;
+
+    background: var(--a-page);
+    color: var(--a-ink);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+}
+
+@layer components {
+    /* ── Layout shell ── */
+    .admin-sidebar {
+        background: var(--a-panel);
+        border-right: 1px solid var(--a-line);
+    }
+
+    .admin-brand-mark {
+        font-family: 'Fraunces', serif;
+        font-weight: 600;
+        font-style: italic;
+        color: var(--a-ink);
+    }
+
+    .admin-brand-sub {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--a-ink-soft);
+    }
+
+    .admin-nav-label {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--a-ink-faint);
+    }
+
+    .admin-nav-item {
+        @apply flex items-center gap-2.5 rounded-ledger px-2.5 py-2 text-[13px] font-medium transition-colors duration-150;
+        color: var(--a-ink-soft);
+    }
+
+    .admin-nav-item:hover {
+        background: var(--a-card);
+        color: var(--a-ink);
+    }
+
+    .admin-nav-item.is-active {
+        background: var(--a-card);
+        color: var(--a-ink);
+        box-shadow: inset 3px 0 0 var(--a-accent);
+        font-weight: 600;
+    }
+
+    .admin-topbar {
+        background: var(--a-card);
+        border-bottom: 1px solid var(--a-line);
+    }
+
+    .admin-heading {
+        font-family: 'Fraunces', serif;
+        font-weight: 500;
+        color: var(--a-ink);
+    }
+
+    /* ── Surfaces ── */
+    .admin-card {
+        background: var(--a-card);
+        border: 1px solid var(--a-line);
+        @apply rounded-ledger;
+    }
+
+    .admin-card-head {
+        border-bottom: 1px solid var(--a-line-soft);
+        @apply flex items-center justify-between gap-3 px-5 py-4;
+    }
+
+    .admin-card-title {
+        font-family: 'Fraunces', serif;
+        font-weight: 500;
+        font-size: 16px;
+        color: var(--a-ink);
+    }
+
+    .admin-eyebrow {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--a-accent);
+    }
+
+    /* ── Buttons ── */
+    .admin-btn {
+        @apply inline-flex min-h-[38px] items-center justify-center gap-2 rounded-ledger px-4 text-[13px] font-semibold transition-colors duration-150;
+    }
+
+    .admin-btn-primary {
+        background: var(--a-accent);
+        color: #fff;
+        border: 1px solid var(--a-accent);
+    }
+
+    .admin-btn-primary:hover {
+        background: color-mix(in srgb, var(--a-accent) 85%, black);
+    }
+
+    .admin-btn-secondary {
+        background: var(--a-card);
+        border: 1px solid var(--a-line);
+        color: var(--a-ink);
+    }
+
+    .admin-btn-secondary:hover {
+        background: var(--a-accent-soft);
+    }
+
+    .admin-btn-danger {
+        background: var(--a-card);
+        border: 1px solid var(--a-brick);
+        color: var(--a-brick);
+    }
+
+    .admin-btn-danger:hover {
+        background: var(--a-brick);
+        color: #fff;
+    }
+
+    .admin-btn-ghost {
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--a-ink-soft);
+    }
+
+    .admin-btn-ghost:hover {
+        color: var(--a-ink);
+        background: var(--a-line-soft);
+    }
+
+    /* ── Badges ── */
+    .admin-badge {
+        font-family: 'IBM Plex Mono', monospace;
+        @apply inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10.5px] font-medium uppercase tracking-wide;
+    }
+
+    .admin-badge-accent {
+        background: var(--a-accent-soft);
+        color: var(--a-accent);
+    }
+
+    .admin-badge-brick {
+        background: var(--a-brick-soft);
+        color: var(--a-brick);
+    }
+
+    .admin-badge-gold {
+        background: var(--a-gold-soft);
+        color: var(--a-gold);
+    }
+
+    .admin-badge-neutral {
+        background: var(--a-line-soft);
+        color: var(--a-ink-soft);
+    }
+
+    /* ── Table ── */
+    .admin-table-wrap {
+        background: var(--a-card);
+        border: 1px solid var(--a-line);
+        @apply overflow-hidden rounded-ledger;
+    }
+
+    .admin-table {
+        @apply w-full border-collapse text-left text-[13px];
+    }
+
+    .admin-table thead th {
+        font-family: 'IBM Plex Mono', monospace;
+        border-bottom: 1px solid var(--a-line);
+        background: var(--a-page);
+        color: var(--a-ink-faint);
+        @apply px-4 py-3 text-[10.5px] font-medium uppercase tracking-wider;
+    }
+
+    .admin-table tbody td {
+        border-bottom: 1px solid var(--a-line-soft);
+        color: var(--a-ink);
+        @apply px-4 py-3;
+    }
+
+    .admin-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .admin-table tbody tr:hover td {
+        background: var(--a-page);
+    }
+
+    /* ── Forms ── */
+    .admin-label {
+        color: var(--a-ink-soft);
+        @apply mb-1.5 block text-[12.5px] font-semibold;
+    }
+
+    .admin-input,
+    .admin-select,
+    .admin-textarea {
+        background: var(--a-card);
+        border: 1px solid var(--a-line);
+        color: var(--a-ink);
+        @apply w-full rounded-ledger px-3 py-2 text-[13px] transition-colors duration-150;
+    }
+
+    .admin-input::placeholder,
+    .admin-textarea::placeholder {
+        color: var(--a-ink-faint);
+    }
+
+    .admin-input:focus,
+    .admin-select:focus,
+    .admin-textarea:focus {
+        outline: none;
+        border-color: var(--a-accent);
+        box-shadow: 0 0 0 2px var(--a-accent-soft);
+    }
+
+    .admin-filter-bar {
+        background: var(--a-card);
+        border: 1px solid var(--a-line);
+        @apply flex flex-col gap-3 rounded-ledger p-4 md:flex-row md:items-center md:justify-between;
+    }
+
+    /* ── Feedback / states ── */
+    .admin-flash {
+        @apply flex items-center justify-between gap-3 rounded-ledger border px-4 py-3 text-[13px] font-medium;
+    }
+
+    .admin-flash-success {
+        background: var(--a-accent-soft);
+        border-color: var(--a-accent);
+        color: var(--a-accent);
+    }
+
+    .admin-flash-error {
+        background: var(--a-brick-soft);
+        border-color: var(--a-brick);
+        color: var(--a-brick);
+    }
+
+    .admin-empty {
+        color: var(--a-ink-faint);
+        @apply px-4 py-12 text-center text-[13px];
+    }
+
+    .admin-stat-card {
+        background: var(--a-card);
+        border: 1px solid var(--a-line);
+        @apply rounded-ledger p-4;
+    }
+
+    .admin-stat-value {
+        font-family: 'Fraunces', serif;
+        font-weight: 500;
+        font-size: 28px;
+        color: var(--a-ink);
+        line-height: 1;
+    }
+
+    .admin-avatar {
+        background: var(--a-accent);
+        color: #fff;
+        font-family: 'Fraunces', serif;
+        @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm;
+    }
+}
+
 /* Material Design ripple + state-layer interaction */
 .md-ripple {
     position: relative;

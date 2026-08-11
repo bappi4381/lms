@@ -62,10 +62,10 @@
     <!-- Trigger Button -->
     <button type="button"
             @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())"
-            :class="open ? 'border-sky-500 ring-2 ring-sky-100' : 'border-slate-300 hover:border-slate-400'"
-            class="w-full px-4 py-2.5 rounded-xl border bg-white text-left text-sm flex items-center justify-between shadow-2xs transition-all cursor-pointer">
-        <span class="truncate" :class="selected ? 'text-slate-800 font-semibold' : 'text-slate-400'" x-text="selectedLabel"></span>
-        <svg class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180 text-sky-500' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            :class="open ? 'border-[var(--a-accent)] ring-2 ring-[var(--a-accent-soft)]' : 'border-[var(--a-line)] hover:border-[var(--a-ink-faint)]'"
+            class="flex w-full cursor-pointer items-center justify-between rounded-ledger border bg-[var(--a-card)] px-3 py-2 text-left text-[13px] transition-all">
+        <span class="truncate" :class="selected ? 'font-medium' : ''" :style="selected ? 'color:var(--a-ink)' : 'color:var(--a-ink-faint)'" x-text="selectedLabel"></span>
+        <svg class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color:var(--a-ink-faint)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
         </svg>
     </button>
@@ -79,7 +79,8 @@
          x-transition:leave="transition ease-in duration-75"
          x-transition:leave-start="opacity-100 scale-100"
          x-transition:leave-end="opacity-0 scale-95"
-         class="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white rounded-2xl border border-sky-200 shadow-xl p-3 space-y-2 max-h-72 flex flex-col">
+         class="absolute left-0 right-0 top-full z-50 mt-1.5 flex max-h-72 flex-col space-y-2 rounded-ledger border bg-[var(--a-card)] p-3 shadow-lg"
+         style="border-color:var(--a-line)">
 
         <!-- Search Input -->
         <div class="relative shrink-0">
@@ -87,22 +88,23 @@
                    x-ref="searchInput"
                    x-model="search"
                    placeholder="{{ $searchPlaceholder }}"
-                   class="w-full px-3.5 py-2 rounded-xl border-2 border-sky-400 text-sm text-slate-800 focus:outline-none focus:border-sky-500 placeholder-slate-400 shadow-2xs">
+                   class="admin-input">
         </div>
 
         <!-- Options List -->
-        <div class="overflow-y-auto flex-1 space-y-0.5 max-h-48 pr-1">
+        <div class="flex-1 space-y-0.5 overflow-y-auto pr-1" style="max-height:12rem">
             <template x-if="filteredOptions.length === 0">
-                <div class="px-3 py-3 text-xs text-center text-slate-400 font-medium">No options found</div>
+                <div class="px-3 py-3 text-center text-[12px] font-medium" style="color:var(--a-ink-faint)">No options found</div>
             </template>
 
             <template x-for="item in filteredOptions" :key="item.value">
                 <div @click="select(item.value)"
-                     :class="String(selected) === String(item.value) ? 'bg-sky-50 text-sky-600 font-bold' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-medium'"
-                     class="px-3 py-2 rounded-xl text-sm cursor-pointer transition-all flex items-center justify-between">
+                     :class="String(selected) === String(item.value) ? 'font-semibold' : 'font-medium'"
+                     :style="String(selected) === String(item.value) ? 'background:var(--a-accent-soft); color:var(--a-accent)' : 'color:var(--a-ink-soft)'"
+                     class="flex cursor-pointer items-center justify-between rounded-ledger px-3 py-2 text-[13px] transition-all hover:brightness-95">
                     <span x-text="item.label" class="truncate"></span>
                     <template x-if="String(selected) === String(item.value)">
-                        <svg class="w-4 h-4 text-sky-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-4 w-4 shrink-0" style="color:var(--a-accent)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                         </svg>
                     </template>
